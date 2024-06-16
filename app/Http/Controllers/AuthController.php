@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\UserRegistered;
 
 class AuthController extends Controller
 {
     public function registerUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'required|string|max:50',
+            'name' => 'required|string|max:50',
             'email' => 'required|string|email|max:50|unique:users',
             'phone_number' => 'required|string|max:10',
             'address' => 'required|string|max:60',
@@ -31,8 +32,7 @@ class AuthController extends Controller
         $hashedPassword = Hash::make($randomPassword);
 
         $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
+            'name' => $request->name,
             'email' => $request->email,
             'password' => $hashedPassword,
             'phone_number' => $request->phone_number,
@@ -52,10 +52,8 @@ class AuthController extends Controller
     public function registerEmployee(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'required|string|max:50',
+            'name' => 'required|string|max:50',
             'email' => 'required|string|email|max:50|unique:users',
-            'password' => 'required|string|min:6|confirmed',
             'phone_number' => 'required|string|max:10',
             'address' => 'required|string|max:60',
             'date_of_birth' => 'required|date',
@@ -65,11 +63,13 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
+        $randomPassword = Str::random(10);
+        $hashedPassword = Hash::make($randomPassword);
+
         $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
+            'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $hashedPassword,
             'phone_number' => $request->phone_number,
             'address' => $request->address,
             'date_of_birth' => $request->date_of_birth,
@@ -100,7 +100,7 @@ class AuthController extends Controller
             $user = Auth::user();
 
             if ($user->rol->rol_name == 'Cliente' || $user->rol->rol_name == 'Admin') {
-                $token = $user->createToken('token')->plainTextToken;
+                $token = $user->createToken('auth_token')->plainTextToken;
                 return response()->json(['message' => 'User logged in successfully', 'token' => $token, 'user' => $user], 200);
 
             } else {

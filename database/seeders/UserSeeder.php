@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
             'address' => 'UTT',
             'date_of_birth' => '2001-07-08',
             'rol_id' => $adminRoleId,
-        ]
+            ],
     );
     }
 }
