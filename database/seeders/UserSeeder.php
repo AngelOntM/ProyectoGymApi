@@ -43,7 +43,16 @@ class UserSeeder extends Seeder
             'address' => 'Latinoamericano',
             'date_of_birth' => '1994-06-11',
             'rol_id' => $adminRoleId,
-            ]
+            ],
+            [
+            'name' => 'yan odz',
+            'email' => 'yanordazuwu@gmail.com',
+            'password' => Hash::make('gatitos'), 
+            'phone_number' => '',
+            'address' => 'UTT',
+            'date_of_birth' => '2001-07-08',
+            'rol_id' => $adminRoleId,
+        ]
     );
     }
 }
