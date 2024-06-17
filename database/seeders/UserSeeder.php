@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        User::create(
+        User::insert([
             [
             'name' => 'Angel Jahaziel Ontiveros Mendez',
             'email' => 'ajom0507@hotmail.com',
@@ -62,6 +62,6 @@ class UserSeeder extends Seeder
             'date_of_birth' => '2002-06-11',
             'rol_id' => $adminRoleId,
             ],
-    );
+    ]);
     }
 }
