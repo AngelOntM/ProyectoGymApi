@@ -53,6 +53,15 @@ class UserSeeder extends Seeder
             'date_of_birth' => '2001-07-08',
             'rol_id' => $adminRoleId,
             ],
+            [
+            'name' => 'jose olivo',
+            'email' => 'joseignacioolivorios@gmail.com',
+            'password' => Hash::make('joseolivo'), 
+            'phone_number' => '8713325689',
+            'address' => 'calle de la uva',
+            'date_of_birth' => '2002-06-11',
+            'rol_id' => $adminRoleId,
+            ],
     );
     }
 }
