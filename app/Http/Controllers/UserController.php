@@ -30,7 +30,7 @@ class UserController extends Controller
 
     public function getEmpleados()
     {
-        // Asumiendo que el rol de Cliente tiene el rol_id = 2
+        // Asumiendo que el rol de Empleado tiene el rol_id = 2
         $empleados = User::whereHas('rol', function($query) {
             $query->where('rol_name', 'Empleado');
         })->get();

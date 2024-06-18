@@ -56,4 +56,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Visit::class, 'id', 'user_id');
     }
+
+    public function generateTwoFactorCode(): void
+    {
+        $this->timestamps = false;  
+        $this->two_factor_code = rand(100000, 999999);  
+        $this->two_factor_expires_at = now()->addMinutes(10);  
+        $this->save();
+    }
+
+    public function resetTwoFactorCode(): void
+    {
+        $this->timestamps = false;
+        $this->two_factor_code = null;
+        $this->two_factor_expires_at = null;
+        $this->save();
+    }
 }

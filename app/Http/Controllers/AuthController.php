@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\UserRegistered;
+use App\Notifications\SendTwoFactorCode;
+use Carbon\Carbon;
+
 
 class AuthController extends Controller
 {
@@ -99,15 +102,21 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            if ($user->rol->rol_name == 'Cliente' || $user->rol->rol_name == 'Admin') {
+            if ($user->rol->rol_name == 'Admin') {
+                $request->user()->generateTwoFactorCode();
+                $request->user()->notify(new SendTwoFactorCode());
+
+                return response()->json(['message' => '2FA code sent to your email', 'user' => $user], 200);
+            }
+
+            if ($user->rol->rol_name == 'Cliente') {
                 $token = $user->createToken('auth_token')->plainTextToken;
                 return response()->json(['message' => 'User logged in successfully', 'token' => $token, 'user' => $user], 200);
-
             } else {
-                Auth::logout();
-                return response()->json(['message' => 'Unauthorized'], 401);
+                    Auth::logout();
+                    return response()->json(['message' => 'Unauthorized'], 401);
 
-            }
+                }
         }
 
         return response()->json(['message' => 'Invalid credentials'], 401);
@@ -129,7 +138,15 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            if ($user->rol->rol_name == 'Empleado' || $user->rol->rol_name == 'Admin') {
+
+            if ($user->rol->rol_name == 'Admin') {
+                $request->user()->generateTwoFactorCode();
+                $request->user()->notify(new SendTwoFactorCode());
+
+                return response()->json(['message' => '2FA code sent to your email', 'user' => $user], 200);
+            }
+
+            if ($user->rol->rol_name == 'Empleado') {
                 $token = $user->createToken('auth_token')->plainTextToken;
                 return response()->json(['message' => 'Employee logged in successfully', 'token' => $token, 'user' => $user], 200);
             } else {
@@ -139,6 +156,32 @@ class AuthController extends Controller
         }
 
         return response()->json(['message' => 'Invalid credentials'], 401);
+    }
+
+    public function verifyTwoFactor(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email|max:50',
+            'two_factor_code' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = User::where('email', $request->email)
+                    ->where('two_factor_code', $request->two_factor_code)
+                    ->where('two_factor_expires_at', '>', Carbon::now())
+                    ->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Invalid or expired 2FA code'], 401);
+        }
+
+        $user->resetTwoFactorCode();
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json(['message' => 'User logged in successfully', 'token' => $token, 'user' => $user], 200);
     }
 
     public function changePassword(Request $request)

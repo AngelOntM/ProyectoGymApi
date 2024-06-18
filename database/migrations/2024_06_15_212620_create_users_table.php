@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('address', 60);
             $table->date('date_of_birth');
             $table->foreignId('rol_id')->constrained('rols');
+            $table->integer('two_factor_code')->nullable();
+            $table->dateTime('two_factor_expires_at')->nullable();
             $table->timestamps();
         });
 
