@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -25,6 +26,16 @@ class UserController extends Controller
         })->get();
 
         return response()->json(['clientes' => $clientes], 200);
+    }
+
+    public function getEmpleados()
+    {
+        // Asumiendo que el rol de Cliente tiene el rol_id = 2
+        $empleados = User::whereHas('rol', function($query) {
+            $query->where('rol_name', 'Empleado');
+        })->get();
+
+        return response()->json(['empleados' => $empleados], 200);
     }
 
     public function updateUser(Request $request, $id)
