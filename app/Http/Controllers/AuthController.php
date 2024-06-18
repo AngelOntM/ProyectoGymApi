@@ -51,6 +51,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
     }
 
+//----------------------------------------------------------------
     // Método para registrar un empleado
     public function registerEmployee(Request $request)
     {
@@ -85,6 +86,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Employee registered successfully', 'user' => $user], 201);
     }
 
+//----------------------------------------------------------------
     // Método para iniciar sesión de un usuario normal
     public function loginUser(Request $request)
     {
@@ -122,6 +124,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
+//----------------------------------------------------------------
     // Método para iniciar sesión de un empleado
     public function loginEmployee(Request $request)
     {
@@ -158,6 +161,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
+//----------------------------------------------------------------
     public function verifyTwoFactor(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -183,7 +187,8 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['message' => 'User logged in successfully', 'token' => $token, 'user' => $user], 200);
     }
-
+    
+//----------------------------------------------------------------
     public function changePassword(Request $request)
     {
         // Validar la solicitud
@@ -211,6 +216,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password changed successfully'], 200);
     }
 
+//----------------------------------------------------------------
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
