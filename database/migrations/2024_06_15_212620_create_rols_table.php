@@ -12,13 +12,6 @@ class CreateRolsTable extends Migration
             $table->id();
             $table->string('rol_name', 30);
         });
-
-        // Insertar roles
-        DB::table('rols')->insert([
-            ['rol_name' => 'Admin'],
-            ['rol_name' => 'Empleado'],
-            ['rol_name' => 'Cliente'],
-        ]);
     }
 
     public function down()

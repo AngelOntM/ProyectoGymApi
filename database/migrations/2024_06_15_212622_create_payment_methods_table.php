@@ -13,13 +13,6 @@ class CreatePaymentMethodsTable extends Migration
             $table->string('method_name', 50);
             $table->timestamps();
         });
-
-        // Insertar métodos de pago
-        DB::table('payment_methods')->insert([
-            ['method_name' => 'Efectivo'],
-            ['method_name' => 'Tarjeta'],
-            ['method_name' => 'Pago en línea'],
-        ]);
     }
 
     public function down()
