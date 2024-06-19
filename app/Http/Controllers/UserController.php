@@ -18,6 +18,7 @@ class UserController extends Controller
         return response()->json($user, 200);
     }
 
+//----------------------------------------------------------------
     public function getClientes()
     {
         // Asumiendo que el rol de Cliente tiene el rol_id = 3
@@ -38,6 +39,7 @@ class UserController extends Controller
         return response()->json(['empleados' => $empleados], 200);
     }
 
+//----------------------------------------------------------------
     public function updateUser(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -65,6 +67,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
 
+//----------------------------------------------------------------
     public function updateEmployee(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -94,6 +97,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
 
+//----------------------------------------------------------------
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
