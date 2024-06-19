@@ -12,17 +12,18 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 //----------------------------------------------------------------Users
+//Usuario autenticado
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'getUser']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 });
-
+//Admin
 Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
     Route::get('/users/empleados', [UserController::class, 'getEmpleados']);
     Route::put('/users/admin/{id}', [UserController::class, 'updateEmployee']);
     Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
 });
-
+//Empleado
 Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function () {
     Route::get('/users/clientes', [UserController::class, 'getClientes']);
     Route::put('/users/{id}', [UserController::class, 'updateUser']);

@@ -62,6 +62,15 @@ class UserSeeder extends Seeder
             'date_of_birth' => '2002-06-11',
             'rol_id' => $adminRoleId,
             ],
+            [
+            'name' => 'Angel Ontiveros',
+            'email' => 'ajom319@gmail.com',
+            'password' => Hash::make('asdfasdf'), 
+            'phone_number' => '1234567890',
+            'address' => 'Villas la merced',
+            'date_of_birth' => '2002-07-05',
+            'rol_id' => '2',
+            ],
     ]);
     }
 }

@@ -76,7 +76,7 @@ class UserController extends Controller
             'phone_number' => 'sometimes|required|string|max:10',
             'address' => 'sometimes|required|string|max:60',
             'date_of_birth' => 'sometimes|required|date',
-            'rol_id' => 'sometimes|required|integer|exists:rols,rol_id',
+            'rol_id' => 'sometimes|required|integer|exists:rols,id',
         ]);
 
         if ($validator->fails()) {
