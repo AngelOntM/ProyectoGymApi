@@ -15,7 +15,7 @@ Route::middleware('auth:api')->get('/user', [UserController::class, 'getUser']);
 Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->get('/users/clientes', [UserController::class, 'getClientes']);
 Route::middleware(['auth:sanctum', 'role.admin'])->get('/users/empleados', [UserController::class, 'getEmpleados']);
 Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->put('/users/{id}', [UserController::class, 'updateUser']);
-Route::middleware(['auth:sanctum', 'role.admin'])->put('/users/{id}', [UserController::class, 'updateEmployee']);
+Route::middleware(['auth:sanctum', 'role.admin'])->put('/users/admin/{id}', [UserController::class, 'updateEmployee']);
 Route::middleware(['auth:sanctum', 'role.admin'])->delete('/users/{id}', [UserController::class, 'deleteUser']);
 
 
