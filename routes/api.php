@@ -7,10 +7,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MembresiaController;
 
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
 //----------------------------------------------------------------Users
 //Usuario autenticado
 Route::middleware(['auth:sanctum'])->group(function () {
