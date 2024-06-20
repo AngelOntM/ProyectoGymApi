@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\MembresiaController;
+use App\Http\Controllers\MembershipController;
 
 
 //----------------------------------------------------------------Users
@@ -26,14 +26,14 @@ Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function ()
 });
 
 //----------------------------------------------------------------Memberships
-Route::get('membresias', [MembresiaController::class, 'index']); // Membresías activas
+Route::get('membresias', [MembershipController::class, 'index']); // Membresías activas
 
 Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
-    Route::get('membresias/all', [MembresiaController::class, 'indexAll']); // Todas las membresías
-    Route::post('membresias', [MembresiaController::class, 'store']);
-    Route::put('membresias/{id}', [MembresiaController::class, 'update']);
-    Route::put('membresias/{id}/toggle-active', [MembresiaController::class, 'toggleActive']);
-    Route::delete('membresias/{id}', [MembresiaController::class, 'destroy']);
+    Route::get('membresias/all', [MembershipController::class, 'indexAll']); // Todas las membresías
+    Route::post('membresias', [MembershipController::class, 'store']);
+    Route::put('membresias/{id}', [MembershipController::class, 'update']);
+    Route::put('membresias/{id}/toggle-active', [MembershipController::class, 'toggleActive']);
+    Route::delete('membresias/{id}', [MembershipController::class, 'destroy']);
 });
 
 //----------------------------------------------------------------Auth

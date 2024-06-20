@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Membresia;
+use App\Models\Membership;
 use Illuminate\Support\Facades\Validator;
 
-class MembresiaController extends Controller
+class MembershipController extends Controller
 {
     // Obtener todas las membresías
     public function index()
     {
-        $membresias = Membresia::where('active', true)->get();
+        $membresias = Membership::where('active', true)->get();
         return response()->json($membresias);
     }
 
@@ -19,7 +19,7 @@ class MembresiaController extends Controller
     // Obtener todas las membresías (solo para admin)
     public function indexAll()
     {
-        $membresias = Membresia::all();
+        $membresias = Membership::all();
         return response()->json($membresias);
     }
 
@@ -40,7 +40,7 @@ class MembresiaController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $membresia = Membresia::create($request->all());
+        $membresia = Membership::create($request->all());
         return response()->json($membresia, 201);
     }
 
@@ -48,7 +48,7 @@ class MembresiaController extends Controller
     // Actualizar una membresía existente
     public function update(Request $request, $id)
     {
-        $membresia = Membresia::find($id);
+        $membresia = Membership::find($id);
 
         if (!$membresia) {
             return response()->json(['message' => 'Membresía no encontrada'], 404);
@@ -75,7 +75,7 @@ class MembresiaController extends Controller
     // Eliminar una membresía
     public function destroy($id)
     {
-        $membresia = Membresia::find($id);
+        $membresia = Membership::find($id);
 
         if (!$membresia) {
             return response()->json(['message' => 'Membresía no encontrada'], 404);
@@ -89,7 +89,7 @@ class MembresiaController extends Controller
     // Alternar el estado de una membresía
     public function toggleActive($id)
     {
-        $membresia = Membresia::find($id);
+        $membresia = Membership::find($id);
 
         if (!$membresia) {
             return response()->json(['message' => 'Membresía no encontrada'], 404);
