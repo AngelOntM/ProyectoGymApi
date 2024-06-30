@@ -2,12 +2,10 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Product;
-use App\Models\MembershipDetail;
+use Database\Factories\MembershipProductFactory;
 use App\Models\User;
-use Database\Factories\UserFactory;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,9 +25,6 @@ class DatabaseSeeder extends Seeder
 
         Product::factory()->count(10)->create();
 
-        Product::factory(MembershipProductFactory::class)->count(10)->create();
-
         User::factory()->count(5)->create();
-
     }
 }

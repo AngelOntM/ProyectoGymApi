@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('product_name', 30);
             $table->string('description', 200);
             $table->decimal('price', 10, 2);
-            $table->integer('stock');
+            $table->integer('stock')->default(0);
             $table->decimal('discount', 3, 0)->default(0);
             $table->boolean('active');
             $table->foreignId('category_id')->constrained('categories');
