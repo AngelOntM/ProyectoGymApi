@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\ProductController;
 
 
 //----------------------------------------------------------------Users
@@ -26,14 +27,29 @@ Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function ()
 });
 
 //----------------------------------------------------------------Memberships
-Route::get('membresias', [MembershipController::class, 'index']); // Membresías activas
+Route::prefix('membresias')->group(function () {
+    Route::get('', [MembershipController::class, 'index']);
 
-Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
-    Route::get('membresias/all', [MembershipController::class, 'indexAll']); // Todas las membresías
-    Route::post('membresias', [MembershipController::class, 'store']);
-    Route::put('membresias/{id}', [MembershipController::class, 'update']);
-    Route::put('membresias/{id}/toggle-active', [MembershipController::class, 'toggleActive']);
-    Route::delete('membresias/{id}', [MembershipController::class, 'destroy']);
+    Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
+        Route::get('/all', [MembershipController::class, 'indexAll']); 
+        Route::post('/', [MembershipController::class, 'store']); 
+        Route::put('/{id}', [MembershipController::class, 'update']); 
+        Route::put('/{id}/toggle-active', [MembershipController::class, 'toggleActive']); 
+        Route::delete('/{id}', [MembershipController::class, 'destroy']); 
+    });
+});
+
+//----------------------------------------------------------------Memberships
+Route::prefix('productos')->group(function () {
+    Route::get('/', [ProductController::class, 'index']); 
+
+    Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
+        Route::get('/all', [ProductController::class, 'all']);
+        Route::post('/', [ProductController::class, 'store']);
+        Route::put('/{id}', [ProductController::class, 'update']); 
+        Route::put('/{id}/toggle-active', [ProductController::class, 'toggleActive']); 
+        Route::delete('/{id}', [ProductController::class, 'destroy']);
+    });
 });
 
 //----------------------------------------------------------------Auth
