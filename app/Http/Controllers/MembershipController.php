@@ -15,6 +15,7 @@ class MembershipController extends Controller
     {
         try {
             $memberships = Product::where('active', true)
+                ->where('products.category_id', 2)
                 ->join('membership_details', 'products.id', '=', 'membership_details.product_id')
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'membership_details.duration_days', 'membership_details.size', 'products.created_at', 'products.updated_at')
@@ -30,7 +31,8 @@ class MembershipController extends Controller
     public function indexAll()
     {
         try {
-            $memberships = Product::join('membership_details', 'products.id', '=', 'membership_details.product_id')
+            $memberships = Product::where('products.category_id', 2)
+                ->join('membership_details', 'products.id', '=', 'membership_details.product_id')
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'membership_details.duration_days', 'membership_details.size', 'products.created_at', 'products.updated_at')
                 ->get();

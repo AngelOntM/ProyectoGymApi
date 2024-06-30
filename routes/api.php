@@ -44,7 +44,7 @@ Route::prefix('productos')->group(function () {
     Route::get('', [ProductController::class, 'index']); 
 
     Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
-        Route::get('/all', [ProductController::class, 'all']);
+        Route::get('/all', [ProductController::class, 'indexAll']);
         Route::post('/', [ProductController::class, 'store']);
         Route::put('/{id}', [ProductController::class, 'update']); 
         Route::put('/{id}/toggle-active', [ProductController::class, 'toggleActive']); 

@@ -14,6 +14,7 @@ class ProductController extends Controller
     {
         try {
             $products = Product::where('active', true)
+                ->where('products.category_id', 1)
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.stock', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'products.created_at', 'products.updated_at')
                 ->get();
@@ -28,7 +29,8 @@ class ProductController extends Controller
     public function indexAll()
     {
         try {
-            $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
+            $products = Product::where('products.category_id', 1)
+                ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.stock', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'products.created_at', 'products.updated_at')
                 ->get();
 
@@ -37,6 +39,7 @@ class ProductController extends Controller
             return response()->json(['message' => 'Error al obtener todos los productos'], 500);
         }
     }
+
 
     // POST - /productos
     public function store(Request $request)
