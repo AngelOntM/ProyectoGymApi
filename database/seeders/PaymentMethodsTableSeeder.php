@@ -6,12 +6,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\PaymentMethod;
 
-class PaymentSeeder extends Seeder
+class PaymentMethodsTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
         PaymentMethod::insert([
             ['method_name' => 'Efectivo'],

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,22 +11,23 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $table = 'orders';
-    protected $primaryKey = 'id';
-
     protected $fillable = [
-        'user_id',
-        'order_date',
-        'total_amount',
+        'user_id', 'order_date', 'total_amount', 'estado'
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class);
     }
 
     public function orderDetails()
     {
-        return $this->hasMany(OrderDetail::class, 'id', 'order_id');
+        return $this->hasMany(OrderDetail::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }
+

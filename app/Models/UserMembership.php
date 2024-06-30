@@ -9,25 +9,23 @@ class UserMembership extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_membership';
-    protected $primaryKey = null;
-    public $incrementing = false;
-
     protected $fillable = [
-        'user_id',
-        'membership_id',
-        'start_date',
-        'end_date',
-        'registration_group_id',
+        'user_id', 'membership_id', 'start_date', 'end_date'
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class);
     }
 
-    public function membership()
+    public function membershipDetail()
     {
-        return $this->belongsTo(Membership::class, 'membership_id', 'id');
+        return $this->belongsTo(MembershipDetail::class, 'membership_id');
+    }
+
+    public function membershipCodes()
+    {
+        return $this->hasMany(MembershipCode::class, 'user_membership_id');
     }
 }
+

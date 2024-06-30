@@ -8,17 +8,18 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('visits', function (Blueprint $table) {
+        Schema::create('membership_codes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->timestamp('visit_date')->useCurrent();
-            $table->timestamp('check_in_time')->useCurrent();
+            $table->string('code', 10)->unique();
+            $table->foreignId('user_membership_id')->constrained('user_memberships');
+            $table->boolean('available')->default(true);
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('visits');
+        Schema::dropIfExists('membership_codes');
     }
 };
+

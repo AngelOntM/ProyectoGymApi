@@ -9,29 +9,17 @@ class Payment extends Model
 {
     use HasFactory;
 
-    protected $table = 'payments';
-    protected $primaryKey = 'id';
-
     protected $fillable = [
-        'user_id',
-        'membership_id',
-        'payment_method_id',
-        'amount',
-        'payment_date',
+        'order_id', 'payment_method_id', 'amount', 'payment_date'
     ];
 
-    public function user()
+    public function order()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    public function membership()
-    {
-        return $this->belongsTo(Membership::class, 'membership_id', 'id');
+        return $this->belongsTo(Order::class);
     }
 
     public function paymentMethod()
     {
-        return $this->belongsTo(PaymentMethod::class, 'payment_method_id', 'id');
+        return $this->belongsTo(PaymentMethod::class);
     }
 }

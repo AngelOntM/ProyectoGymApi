@@ -9,22 +9,25 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $table = 'products';
-    protected $primaryKey = 'id';
-
     protected $fillable = [
-        'product_name',
-        'description',
-        'price',
-        'stock_quantity',
-        'discount',
-        'created_at',
-        'updated_at',
+        'product_name', 'description', 'price', 'stock', 'discount',
+        'active', 'category_id', 'product_image_path'
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function membershipDetails()
+    {
+        return $this->hasMany(MembershipDetail::class);
+    }
 
     public function orderDetails()
     {
-        return $this->hasMany(OrderDetail::class, 'id', 'product_id');
+        return $this->hasMany(OrderDetail::class);
     }
 }
+
 

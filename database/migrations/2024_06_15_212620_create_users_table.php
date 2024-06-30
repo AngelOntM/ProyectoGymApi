@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('address', 60);
             $table->date('date_of_birth');
             $table->foreignId('rol_id')->constrained('rols');
+            $table->string('face_image_path', 100)->nullable();
             $table->integer('two_factor_code')->nullable();
             $table->dateTime('two_factor_expires_at')->nullable();
             $table->timestamps();
@@ -39,6 +40,8 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        DB::statement('ALTER TABLE users AUTO_INCREMENT = 1000;');
     }
 
     /**
