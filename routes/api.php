@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
+
 
 
 //----------------------------------------------------------------Users
@@ -39,7 +41,7 @@ Route::prefix('membresias')->group(function () {
     });
 });
 
-//----------------------------------------------------------------Memberships
+//----------------------------------------------------------------Products
 Route::prefix('productos')->group(function () {
     Route::get('', [ProductController::class, 'index']); 
 
@@ -49,6 +51,17 @@ Route::prefix('productos')->group(function () {
         Route::put('/{id}', [ProductController::class, 'update']); 
         Route::put('/{id}/toggle-active', [ProductController::class, 'toggleActive']); 
         Route::delete('/{id}', [ProductController::class, 'destroy']);
+    });
+});
+
+//----------------------------------------------------------------Orders
+Route::prefix('orders')->group(function () {
+    Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
+        Route::get('', [OrderController::class, 'index']); 
+        Route::get('/{id}', [OrderController::class, 'show']); 
+        Route::post('/products', [OrderController::class, 'storeProductsOrder']); 
+        Route::post('/memberships', [OrderController::class, 'storeMembershipsOrder']);
+        Route::delete('/{id}', [OrderController::class, 'destroy']);
     });
 });
 

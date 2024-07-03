@@ -79,7 +79,7 @@ public function run()
             'phone_number' => '1234567890',
             'address' => 'utt',
             'date_of_birth' => '2000-04-03',
-            'rol_id' => 2,
+            'rol_id' => 3,
             'face_image_path' => null,
             'two_factor_code' => null,
             'two_factor_expires_at' => null,
