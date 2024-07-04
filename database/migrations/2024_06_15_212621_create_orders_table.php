@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->timestamp('order_date')->useCurrent();
             $table->decimal('total_amount', 10, 2);
-            $table->enum('estado', ['pagada', 'cancelada']);
+            $table->enum('estado', ['Proceso', 'Pagada', 'Cancelada']);
             $table->timestamps();
         });
     }

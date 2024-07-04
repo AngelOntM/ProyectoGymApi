@@ -72,7 +72,7 @@ class OrderController extends Controller
             'user_id' => Auth::id(),
             'order_date' => now(),
             'total_amount' => $totalAmount,
-            'estado' => 'pagada',
+            'estado' => 'Proceso',
         ]);
 
         foreach ($orderDetails as $detail) {
@@ -106,7 +106,7 @@ class OrderController extends Controller
             'user_id' => Auth::id(), // ID del empleado que realiza la orden
             'order_date' => now(),
             'total_amount' => $product->price,
-            'estado' => 'pagada', // Estado de la orden (ej. 'pagada' para órdenes pagadas)
+            'estado' => 'Proceso', // Estado de la orden (ej. 'pagada' para órdenes pagadas)
         ]);
 
         // Crear el detalle de la orden para la membresía

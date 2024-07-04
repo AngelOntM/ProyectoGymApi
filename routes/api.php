@@ -7,6 +7,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MembershipController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentMethodController;
 
 
 
@@ -62,7 +64,16 @@ Route::prefix('orders')->group(function () {
         Route::post('/products', [OrderController::class, 'storeProductsOrder']); 
         Route::post('/memberships', [OrderController::class, 'storeMembershipsOrder']);
         Route::delete('/{id}', [OrderController::class, 'destroy']);
+
+        // Payment routes
+        Route::get('/{orderId}/payments', [PaymentController::class, 'show']);
+        Route::post('/{orderId}/payments', [PaymentController::class, 'store']);
     });
+});
+
+//----------------------------------------------------------------Payment Methods
+Route::prefix('payment-methods')->group(function () {
+    Route::get('/', [PaymentMethodController::class, 'index']);
 });
 
 //----------------------------------------------------------------Auth
