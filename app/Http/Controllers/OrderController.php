@@ -11,7 +11,6 @@ use App\Models\UserMembership;
 use App\Models\MembershipCode;
 use App\Notifications\MembershipCodesNotification;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -38,7 +37,6 @@ class OrderController extends Controller
         }
     }
 
-
     // POST - /orders/products
     public function storeProductsOrder(Request $request)
     {
@@ -46,6 +44,7 @@ class OrderController extends Controller
             'orderDetails' => 'required|array|min:1',
             'orderDetails.*.product_id' => 'required|integer|exists:products,id',
             'orderDetails.*.quantity' => 'required|integer|min:1',
+            'user_id' => 'nullable|integer|exists:users,id',
         ]);
 
         $orderDetailsData = $request->orderDetails;
@@ -69,7 +68,8 @@ class OrderController extends Controller
         }
 
         $order = Order::create([
-            'user_id' => Auth::id(),
+            'user_id' => $request->user_id, // ID del cliente que recibe la membresía
+            'employee_id' => Auth::id(), // ID del empleado que realiza la orden
             'order_date' => now(),
             'total_amount' => $totalAmount,
             'estado' => 'Proceso',
@@ -101,13 +101,21 @@ class OrderController extends Controller
         $product = Product::findOrFail($request->product_id);
         $membershipDetail = $product->membershipDetails()->firstOrFail();
 
-        // Crear la orden
-        $order = Order::create([
-            'user_id' => Auth::id(), // ID del empleado que realiza la orden
+        // Determinar quién realiza la orden: empleado o cliente
+        $orderData = [
+            'user_id' => $request->user_id, // ID del cliente que recibe la membresía
             'order_date' => now(),
             'total_amount' => $product->price,
-            'estado' => 'Proceso', // Estado de la orden (ej. 'pagada' para órdenes pagadas)
-        ]);
+            'estado' => 'Proceso', // Estado de la orden
+        ];
+
+        if (auth()->check() && (auth()->user()->rol_id == 1 || auth()->user()->rol_id == 2)) {
+            // Si el usuario autenticado tiene rol de administrador (1) o empleado (2)
+            $orderData['employee_id'] = auth()->id(); // ID del empleado que realiza la orden
+        }
+
+        // Crear la orden
+        $order = Order::create($orderData);
 
         // Crear el detalle de la orden para la membresía
         OrderDetail::create([
@@ -117,34 +125,6 @@ class OrderController extends Controller
             'unit_price' => $product->price,
             'total_price' => $product->price,
         ]);
-
-        // Array para almacenar los códigos de membresía creados
-        $membershipCodes = [];
-
-        // Crear los userMemberships y generar los códigos de membresía
-        for ($i = 0; $i < $membershipDetail->size; $i++) {
-            // Crear UserMembership con user_id nulo
-            $userMembership = UserMembership::create([
-                'user_id' => null, // Se asignará después
-                'membership_id' => $membershipDetail->id,
-                'start_date' => now(),
-                'end_date' => now()->addDays($membershipDetail->duration_days),
-            ]);
-
-            // Generar MembershipCode
-            $membershipCode = MembershipCode::create([
-                'code' => MembershipCode::generateMembershipCode(), // Función para generar código único
-                'user_membership_id' => $userMembership->id,
-                'available' => true,
-            ]);
-
-            $membershipCodes[] = $membershipCode->code; // Agregar el código al array
-
-            // No se envía el correo aquí, se enviará después de crear todos los códigos
-        }
-
-        // Enviar correo con los códigos generados
-        $user->notify(new MembershipCodesNotification($membershipCodes));
 
         return response()->json($order, 201);
     }
@@ -172,5 +152,3 @@ class OrderController extends Controller
         }
     }
 }
-
-
