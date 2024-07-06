@@ -134,7 +134,7 @@ class OrderController extends Controller
     {
         try {
             $order = Order::findOrFail($id);
-            $order->estado = 'cancelado';
+            $order->estado = 'Cancelada';
             $order->save();
 
             $orderDetails = OrderDetail::where('order_id', $id)->get();
