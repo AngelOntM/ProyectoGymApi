@@ -47,9 +47,13 @@ class VisitController extends Controller
     {
         $visits = Visit::where('user_id', $userId)
             ->with(['user', 'user.userMemberships' => function ($query) {
-                $query->active(); // Usamos el scope `active` para filtrar los userMemberships activos
+                $query->active()
+                    ->with(['membershipDetail' => function ($query) {
+                        $query->with('product:id,product_name'); // Cargar el producto y seleccionar solo el nombre
+                    }]);
             }])
             ->get();
+
         return response()->json($visits, 200);
     }
 }
