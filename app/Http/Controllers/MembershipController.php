@@ -82,7 +82,7 @@ class MembershipController extends Controller
         }
     }
 
-    // POST - /membresias/{id}
+    // PUT   - /membresias/{id}
     public function update(Request $request, $id)
     {
         try {
@@ -131,7 +131,7 @@ class MembershipController extends Controller
         try {
             $product = Product::findOrFail($id);
             $membershipDetail = MembershipDetail::where('product_id', $id)->firstOrFail();
-            
+
             $membershipDetail->delete();
             $product->delete();
 
