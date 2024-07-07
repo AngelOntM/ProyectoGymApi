@@ -9,6 +9,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\VisitController;
+use App\Http\Controllers\MembershipCodeController;
 
 
 
@@ -77,6 +79,24 @@ Route::prefix('orders')->group(function () {
 //----------------------------------------------------------------Payment Methods
 Route::prefix('payment-methods')->group(function () {
     Route::get('/', [PaymentMethodController::class, 'index']);
+});
+
+//----------------------------------------------------------------Visits
+Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function () {
+    Route::post('/visits', [VisitController::class, 'store']); // Registrar una visita
+    Route::get('/visits', [VisitController::class, 'index']); // Ver todas las visitas
+    Route::get('/visits/{userId}', [VisitController::class, 'showUserVisits']); // Ver visitas de un usuario específico
+});
+
+//----------------------------------------------------------------Membership Codes
+Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function () {
+    // Canjear código de membresía para un usuario específico - Escritorio
+    Route::post('/membership/redeem/user', [MembershipCodeController::class, 'redeemForSpecificUser']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Canjear código de membresía para el usuario autenticado - Web y Movil
+    Route::post('/membership/redeem', [MembershipCodeController::class, 'redeemForAuthenticatedUser']);
 });
 
 //----------------------------------------------------------------Auth

@@ -38,23 +38,12 @@ class User extends Authenticatable
 
     public function orders()
     {
-        return $this->hasMany(Order::class, 'id', 'user_id');
-    }
-
-    public function memberships()
-    {
-        return $this->belongsToMany(Membership::class, 'user_membership', 'user_id', 'membership_id')
-                    ->withPivot('start_date', 'end_date', 'registration_group_id');
-    }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class, 'id', 'user_id');
+        return $this->hasMany(Order::class, 'user_id', 'id'); // Corregido el parámetro de la clave externa
     }
 
     public function visits()
     {
-        return $this->hasMany(Visit::class, 'id', 'user_id');
+        return $this->hasMany(Visit::class, 'user_id', 'id'); // Corregido el parámetro de la clave externa
     }
 
     public function generateTwoFactorCode(): void
@@ -71,5 +60,22 @@ class User extends Authenticatable
         $this->two_factor_code = null;
         $this->two_factor_expires_at = null;
         $this->save();
+    }
+
+    public function userMemberships()
+    {
+        return $this->hasMany(UserMembership::class, 'user_id', 'id');
+    }
+
+    // Método para mostrar las visitas de un usuario específico con sus membresías activas
+    public function showUserVisits($userId)
+    {
+        $visits = Visit::where('user_id', $userId)
+            ->with(['user', 'userMemberships' => function ($query) {
+                $query->active(); // Usamos el scope `active` para filtrar los userMemberships activos
+            }])
+            ->get();
+
+        return response()->json($visits, 200);
     }
 }

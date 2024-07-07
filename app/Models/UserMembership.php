@@ -27,5 +27,10 @@ class UserMembership extends Model
     {
         return $this->hasMany(MembershipCode::class, 'user_membership_id');
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('end_date', '>', now());
+    }
 }
 

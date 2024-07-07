@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('visits', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->timestamp('visit_date')->useCurrent();
-            $table->timestamp('check_in_time')->useCurrent();
+            $table->date('visit_date')->useCurrent();
+            $table->time('check_in_time')->useCurrent();
             $table->timestamps();
         });
     }
