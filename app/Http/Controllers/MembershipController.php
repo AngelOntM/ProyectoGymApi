@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use App\Models\MembershipDetail;
 use App\Models\Category;
@@ -58,8 +58,6 @@ class MembershipController extends Controller
                 'size' => 'required|integer',
             ]);
 
-            $path = $request->file('product_image_path') ? $request->file('product_image_path')->store('products') : null;
-
             $product = Product::create([
                 'product_name' => $request->product_name,
                 'description' => $request->description,
@@ -67,8 +65,14 @@ class MembershipController extends Controller
                 'discount' => $request->discount,
                 'active' => $request->active,
                 'category_id' => 2,
-                'product_image_path' => $path,
+                'product_image_path' => null,
             ]);
+
+            if ($request->file('product_image_path')) {
+                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
+                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
+                $product->update(['product_image_path' => $path]);
+            }
 
             MembershipDetail::create([
                 'product_id' => $product->id,
@@ -100,9 +104,15 @@ class MembershipController extends Controller
                 'size' => 'required|integer',
             ]);
 
-            $path = $product->product_image_path;
+            // Si se sube una nueva imagen, borrar la anterior
             if ($request->file('product_image_path')) {
-                $path = $request->file('product_image_path')->store('products');
+                if ($product->product_image_path) {
+                    Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
+                }
+                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
+                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
+            } else {
+                $path = $product->product_image_path;
             }
 
             $product->update([
@@ -132,6 +142,11 @@ class MembershipController extends Controller
             $product = Product::findOrFail($id);
             $membershipDetail = MembershipDetail::where('product_id', $id)->firstOrFail();
             
+            // Borrar la imagen del producto
+            if ($product->product_image_path) {
+                Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
+            }
+
             $membershipDetail->delete();
             $product->delete();
 

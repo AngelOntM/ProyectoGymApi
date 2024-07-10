@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use App\Models\Category;
 
@@ -40,7 +40,6 @@ class ProductController extends Controller
         }
     }
 
-
     // POST - /productos
     public function store(Request $request)
     {
@@ -55,8 +54,6 @@ class ProductController extends Controller
                 'product_image_path' => 'nullable|file|image|max:2048',
             ]);
 
-            $path = $request->file('product_image_path') ? $request->file('product_image_path')->store('products') : null;
-
             $product = Product::create([
                 'product_name' => $request->product_name,
                 'description' => $request->description,
@@ -65,8 +62,14 @@ class ProductController extends Controller
                 'discount' => $request->discount,
                 'active' => $request->active,
                 'category_id' => 1,
-                'product_image_path' => $path,
+                'product_image_path' => null,
             ]);
+
+            if ($request->file('product_image_path')) {
+                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
+                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
+                $product->update(['product_image_path' => $path]);
+            }
 
             return response()->json($product, 201);
         } catch (\Exception $e) {
@@ -90,9 +93,15 @@ class ProductController extends Controller
                 'product_image_path' => 'nullable|file|image|max:2048',
             ]);
 
-            $path = $product->product_image_path;
+            // Si se sube una nueva imagen, borrar la anterior
             if ($request->file('product_image_path')) {
-                $path = $request->file('product_image_path')->store('products');
+                if ($product->product_image_path) {
+                    Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
+                }
+                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
+                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
+            } else {
+                $path = $product->product_image_path;
             }
 
             $product->update([
@@ -111,12 +120,18 @@ class ProductController extends Controller
             return response()->json(['message' => 'Error al actualizar el producto'], 500);
         }
     }
-
+    
     // DELETE - /productos/{id}
     public function destroy($id)
     {
         try {
             $product = Product::findOrFail($id);
+            
+            // Borrar la imagen del producto
+            if ($product->product_image_path) {
+                Storage::delete($product->product_image_path);
+            }
+
             $product->delete();
 
             return response()->json(['message' => 'Producto eliminado'], 204);
