@@ -37,17 +37,17 @@ Route::prefix('membresias')->group(function () {
     Route::get('', [MembershipController::class, 'index']);
 
     Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
-        Route::get('/all', [MembershipController::class, 'indexAll']); 
-        Route::post('/', [MembershipController::class, 'store']); 
-        Route::post('/{id}', [MembershipController::class, 'update']); 
-        Route::put('/{id}/toggle-active', [MembershipController::class, 'toggleActive']); 
-        Route::delete('/{id}', [MembershipController::class, 'destroy']); 
+        Route::get('/all', [MembershipController::class, 'indexAll']);
+        Route::post('/', [MembershipController::class, 'store']);
+        Route::put('/{id}', [MembershipController::class, 'update']);
+        Route::put('/{id}/toggle-active', [MembershipController::class, 'toggleActive']);
+        Route::delete('/{id}', [MembershipController::class, 'destroy']);
     });
 });
 
 //----------------------------------------------------------------Products
 Route::prefix('productos')->group(function () {
-    Route::get('', [ProductController::class, 'index']); 
+    Route::get('', [ProductController::class, 'index']);
 
     Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
         Route::get('/all', [ProductController::class, 'indexAll']);
@@ -61,9 +61,9 @@ Route::prefix('productos')->group(function () {
 //----------------------------------------------------------------Orders
 Route::prefix('orders')->group(function () {
     Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function () {
-        Route::get('', [OrderController::class, 'index']); 
-        Route::get('/{id}', [OrderController::class, 'show']); 
-        Route::post('/products', [OrderController::class, 'storeProductsOrder']); 
+        Route::get('', [OrderController::class, 'index']);
+        Route::get('/{id}', [OrderController::class, 'show']);
+        Route::post('/products', [OrderController::class, 'storeProductsOrder']);
         Route::delete('/{id}', [OrderController::class, 'destroy']);
     });
 
