@@ -39,7 +39,7 @@ Route::prefix('membresias')->group(function () {
     Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
         Route::get('/all', [MembershipController::class, 'indexAll']);
         Route::post('/', [MembershipController::class, 'store']);
-        Route::put('/{id}', [MembershipController::class, 'update']);
+        Route::post('/{id}', [MembershipController::class, 'update']);
         Route::put('/{id}/toggle-active', [MembershipController::class, 'toggleActive']);
         Route::delete('/{id}', [MembershipController::class, 'destroy']);
     });

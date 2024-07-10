@@ -86,7 +86,7 @@ class MembershipController extends Controller
         }
     }
 
-    // PUT   - /membresias/{id}
+    // POST   - /membresias/{id}
     public function update(Request $request, $id)
     {
         try {
