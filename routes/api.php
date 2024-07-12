@@ -85,6 +85,8 @@ Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function ()
     Route::post('/visits', [VisitController::class, 'store']); // Registrar una visita
     Route::get('/visits', [VisitController::class, 'index']); // Ver todas las visitas
     Route::get('/visits/{userId}', [VisitController::class, 'showUserVisits']); // Ver visitas de un usuario específico
+
+    Route::post('/visits/process-image', [VisitController::class, 'processImage']); // Registrar una visita con imagen
 });
 
 //----------------------------------------------------------------Membership Codes
