@@ -27,7 +27,7 @@ class AuthController extends Controller
             'phone_number' => 'required|string|max:10',
             'address' => 'required|string|max:60',
             'date_of_birth' => 'date',
-            'face_image' => 'nullable|image|max:2048',
+            'face_image' => 'nullable|image|max:2048', // La imagen es opcional
         ]);
 
         if ($validator->fails()) {
@@ -69,6 +69,13 @@ class AuthController extends Controller
                     $user->delete();
                     return response()->json(['message' => 'Error al subir la imagen'], 500);
                 }
+
+                // Obtener la URL de la imagen
+                $image_url = $response->json('file_name');
+
+                // Almacenar la URL de la imagen en la base de datos
+                $user->update(['face_image_path' => $image_url]);
+
             } catch (\Exception $e) {
                 // Borrar el usuario si ocurre algún error
                 $user->delete();
@@ -134,6 +141,13 @@ class AuthController extends Controller
                     $user->delete();
                     return response()->json(['message' => 'Error al subir la imagen'], 500);
                 }
+
+                // Obtener la URL de la imagen
+                $image_url = $response->json('image_url');
+
+                // Almacenar la URL de la imagen en la base de datos
+                $user->update(['face_image_path' => $image_url]);
+
             } catch (\Exception $e) {
                 // Borrar el usuario si ocurre algún error
                 $user->delete();

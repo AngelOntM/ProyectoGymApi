@@ -24,6 +24,7 @@ class User extends Authenticatable
         'rol_id',
         'created_at',
         'updated_at',
+        'face_image_path',
     ];
 
     protected $hidden = [
