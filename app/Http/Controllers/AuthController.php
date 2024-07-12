@@ -12,10 +12,13 @@ use Illuminate\Support\Facades\Validator;
 use App\Notifications\UserRegistered;
 use App\Notifications\SendTwoFactorCode;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 
 class AuthController extends Controller
 {
+    // Método para registrar un cliente
     public function registerUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -24,6 +27,7 @@ class AuthController extends Controller
             'phone_number' => 'required|string|max:10',
             'address' => 'required|string|max:60',
             'date_of_birth' => 'date',
+            'face_image' => 'nullable|image|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -46,13 +50,41 @@ class AuthController extends Controller
             'updated_at' => now(),
         ]);
 
+        if ($request->hasFile('face_image')) {
+            // Guardar la imagen temporalmente
+            $imagePath = $request->file('face_image')->store('temp');
+
+            try {
+                // Enviar la imagen al microservicio
+                $response = Http::attach(
+                    'face_image',
+                    file_get_contents(storage_path('app/' . $imagePath)),
+                    'face_image.jpg'
+                )->post('http://localhost:5001/upload', [
+                    'user_id' => $user->id,
+                ]);
+
+                if ($response->failed()) {
+                    // Si falla la subida de la imagen, borra el usuario creado
+                    $user->delete();
+                    return response()->json(['message' => 'Error al subir la imagen'], 500);
+                }
+            } catch (\Exception $e) {
+                // Borrar el usuario si ocurre algún error
+                $user->delete();
+                return response()->json(['message' => 'Error al registrar el usuario'], 500);
+            } finally {
+                // Eliminar la imagen temporal
+                Storage::delete($imagePath);
+            }
+        }
+
         $user->notify(new UserRegistered($randomPassword));
 
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
     }
 
-//----------------------------------------------------------------
-    // Método para registrar un empleado
+// Método para registrar un empleado
     public function registerEmployee(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -61,6 +93,7 @@ class AuthController extends Controller
             'phone_number' => 'required|string|max:10',
             'address' => 'required|string|max:60',
             'date_of_birth' => 'required|date',
+            'face_image' => 'nullable|image|max:2048', // La imagen es opcional
         ]);
 
         if ($validator->fails()) {
@@ -82,11 +115,39 @@ class AuthController extends Controller
             'updated_at' => now(),
         ]);
 
+        if ($request->hasFile('face_image')) {
+            // Guardar la imagen temporalmente
+            $imagePath = $request->file('face_image')->store('temp');
+
+            try {
+                // Enviar la imagen al microservicio
+                $response = Http::attach(
+                    'face_image',
+                    file_get_contents(storage_path('app/' . $imagePath)),
+                    'face_image.jpg'
+                )->post('http://localhost:5001/upload', [
+                    'user_id' => $user->id,
+                ]);
+
+                if ($response->failed()) {
+                    // Si falla la subida de la imagen, borra el usuario creado
+                    $user->delete();
+                    return response()->json(['message' => 'Error al subir la imagen'], 500);
+                }
+            } catch (\Exception $e) {
+                // Borrar el usuario si ocurre algún error
+                $user->delete();
+                return response()->json(['message' => 'Error al registrar el empleado'], 500);
+            } finally {
+                // Eliminar la imagen temporal
+                Storage::delete($imagePath);
+            }
+        }
+
         $user->notify(new UserRegistered($randomPassword));
         return response()->json(['message' => 'Employee registered successfully', 'user' => $user], 201);
     }
 
-//----------------------------------------------------------------
     // Método para iniciar sesión de un usuario normal
     public function loginUser(Request $request)
     {
@@ -124,7 +185,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
-//----------------------------------------------------------------
     // Método para iniciar sesión de un empleado
     public function loginEmployee(Request $request)
     {
@@ -161,7 +221,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
-//----------------------------------------------------------------
+    //Metodo para verificar el código de 2FA
     public function verifyTwoFactor(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -188,7 +248,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'User logged in successfully', 'token' => $token, 'user' => $user], 200);
     }
     
-//----------------------------------------------------------------
+    //Metodo para cambiar la contraseña
     public function changePassword(Request $request)
     {
         // Validar la solicitud
@@ -216,7 +276,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password changed successfully'], 200);
     }
 
-//----------------------------------------------------------------
+    //Metodo para cerrar sesión
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
