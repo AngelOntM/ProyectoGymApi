@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    // Retornar la información del usuario autenticado
     public function getUser(Request $request)
     {
         // Obtener el usuario autenticado
@@ -18,7 +19,7 @@ class UserController extends Controller
         return response()->json($user, 200);
     }
 
-//----------------------------------------------------------------
+    // Retornar la información de los usuarios
     public function getClientes()
     {
         // Asumiendo que el rol de Cliente tiene el rol_id = 3
@@ -29,6 +30,7 @@ class UserController extends Controller
         return response()->json(['clientes' => $clientes], 200);
     }
 
+    // Retornar la información de los empleados
     public function getEmpleados()
     {
         // Asumiendo que el rol de Empleado tiene el rol_id = 2
@@ -39,7 +41,7 @@ class UserController extends Controller
         return response()->json(['empleados' => $empleados], 200);
     }
 
-//----------------------------------------------------------------
+    // Actualizar la información del usuario
     public function updateUser(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -67,7 +69,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
 
-//----------------------------------------------------------------
+    // Actualizar la información del empleado
     public function updateEmployee(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -97,7 +99,7 @@ class UserController extends Controller
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
 
-//----------------------------------------------------------------
+    // Eliminar un usuario
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
