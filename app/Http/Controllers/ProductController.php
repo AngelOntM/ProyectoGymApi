@@ -129,7 +129,7 @@ class ProductController extends Controller
             
             // Borrar la imagen del producto
             if ($product->product_image_path) {
-                Storage::delete($product->product_image_path);
+                Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
             }
 
             $product->delete();
