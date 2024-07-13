@@ -1,15 +1,15 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes; // Agrega SoftDeletes aquí
 
     protected $table = 'users';
     protected $primaryKey = 'id';
@@ -41,12 +41,12 @@ class User extends Authenticatable
 
     public function orders()
     {
-        return $this->hasMany(Order::class, 'user_id', 'id'); // Corregido el parámetro de la clave externa
+        return $this->hasMany(Order::class, 'user_id', 'id');
     }
 
     public function visits()
     {
-        return $this->hasMany(Visit::class, 'user_id', 'id'); // Corregido el parámetro de la clave externa
+        return $this->hasMany(Visit::class, 'user_id', 'id');
     }
 
     public function generateTwoFactorCode(): void
@@ -75,7 +75,7 @@ class User extends Authenticatable
     {
         $visits = Visit::where('user_id', $userId)
             ->with(['user', 'userMemberships' => function ($query) {
-                $query->active(); // Usamos el scope `active` para filtrar los userMemberships activos
+                $query->active();
             }])
             ->get();
 

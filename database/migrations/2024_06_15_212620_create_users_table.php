@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('two_factor_code')->nullable();
             $table->dateTime('two_factor_expires_at')->nullable();
             $table->timestamps();
+            $table->softDeletes(); // Agrega esta línea para habilitar soft deletes
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
