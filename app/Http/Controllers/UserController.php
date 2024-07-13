@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -56,6 +57,7 @@ class UserController extends Controller
             'phone_number' => 'sometimes|required|string|max:10',
             'address' => 'sometimes|required|string|max:60',
             'date_of_birth' => 'sometimes|required|date',
+            'face_image' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -64,6 +66,7 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
+        // Actualizar los campos del usuario
         $user->update($request->only([
             'name',
             'email',
@@ -72,10 +75,33 @@ class UserController extends Controller
             'date_of_birth',
         ]));
 
+        // Si se envió una imagen, procesarla y enviarla al microservicio de Python
+        if ($request->hasFile('face_image')) {
+            $image = $request->file('face_image');
+            $imagePath = $image->getPathname();
+            $imageName = $image->getClientOriginalName();
+
+            // Enviar la imagen al microservicio de Python
+            $response = Http::attach('face_image', file_get_contents($imagePath), $imageName)
+                ->post('http://localhost:5001/upload', [
+                    'user_id' => $user->id
+                ]);
+
+            // Procesar la respuesta del microservicio
+            if ($response->successful()) {
+                $responseData = $response->json();
+                $user->face_image_path = $responseData['file_name'];
+                $user->save();
+            } else {
+                return response()->json(['error' => 'Error uploading face image'], 500);
+            }
+        }
+
         return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
     }
 
     // Actualizar la información del empleado
+        // Actualizar la información del empleado
     public function updateEmployee(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -85,6 +111,7 @@ class UserController extends Controller
             'address' => 'sometimes|required|string|max:60',
             'date_of_birth' => 'sometimes|required|date',
             'rol_id' => 'sometimes|required|integer|exists:rols,id',
+            'face_image' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -93,6 +120,7 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
+        // Actualizar los campos del usuario
         $user->update($request->only([
             'name',
             'email',
@@ -102,7 +130,29 @@ class UserController extends Controller
             'rol_id',
         ]));
 
-        return response()->json(['message' => 'User updated successfully', 'user' => $user], 200);
+        // Si se envió una imagen, procesarla y enviarla al microservicio de Python
+        if ($request->hasFile('face_image')) {
+            $image = $request->file('face_image');
+            $imagePath = $image->getPathname();
+            $imageName = $image->getClientOriginalName();
+
+            // Enviar la imagen al microservicio de Python
+            $response = Http::attach('face_image', file_get_contents($imagePath), $imageName)
+                ->post('http://localhost:5001/upload', [
+                    'user_id' => $user->id
+                ]);
+
+            // Procesar la respuesta del microservicio
+            if ($response->successful()) {
+                $responseData = $response->json();
+                $user->face_image_path = $responseData['file_name'];
+                $user->save();
+            } else {
+                return response()->json(['error' => 'Error uploading face image'], 500);
+            }
+        }
+
+        return response()->json(['message' => 'Employee updated successfully', 'user' => $user], 200);
     }
 
     // Eliminar un usuario

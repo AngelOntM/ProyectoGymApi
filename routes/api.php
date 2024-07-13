@@ -23,13 +23,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 //Admin
 Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
     Route::get('/users/empleados', [UserController::class, 'getEmpleados']);
-    Route::put('/users/admin/{id}', [UserController::class, 'updateEmployee']);
+    Route::post('/users/admin/{id}', [UserController::class, 'updateEmployee']);
     Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
 });
-//Empleado
+//Empleado y admin
 Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function () {
     Route::get('/users/clientes', [UserController::class, 'getClientes']);
-    Route::put('/users/{id}', [UserController::class, 'updateUser']);
+    Route::post('/users/{id}', [UserController::class, 'updateUser']);
 });
 
 //----------------------------------------------------------------Memberships
