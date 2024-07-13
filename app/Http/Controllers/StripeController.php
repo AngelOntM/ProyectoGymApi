@@ -5,28 +5,34 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use App\Models\Order;
 
 class StripeController extends Controller
 {
-    public function createPaymentIntent(Request $request)
+    public function createPaymentIntent(Request $request, $orderId)
     {
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        $request->validate([
-            'amount' => 'required|integer|min:1'
-        ]);
+        // Obtener el total de la orden basado en $orderId
+        $order = Order::findOrFail($orderId);
+        $totalAmount = $order->total_amount; // Asume que tienes un campo total_amount en tu modelo de Orden
 
-        $amount = $request->input('amount');
+        // Crear el PaymentIntent en Stripe
+        try {
+            $paymentIntent = PaymentIntent::create([
+                'amount' => $totalAmount * 100, // Convertir a centavos
+                'currency' => 'mxn',
+            ]);
 
-        $paymentIntent = PaymentIntent::create([
-            'amount' => $amount * 100,
-            'currency' => 'mxn',
-        ]);
-
-        return response()->json([
-            'client_secret' => $paymentIntent->id,
-        ]);
+            return response()->json([
+                'client_secret' => $paymentIntent->id,
+            ]);
+        } catch (\Exception $e) {
+            // Manejar errores si ocurren al crear el PaymentIntent
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
+
 
     public function confirmStripePayment(Request $request)
     {

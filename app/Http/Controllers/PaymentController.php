@@ -71,39 +71,61 @@ class PaymentController extends Controller
     // Store payments for an order (Stripe-specific)
     public function storeStripePayment(Request $request, $orderId)
     {
+        // Validar que se envíe el stripe_payment_intent_id en la solicitud
         $request->validate([
             'stripe_payment_intent_id' => 'required|string',
         ]);
 
-        $order = Order::findOrFail($orderId);
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        try {
+            // Buscar la orden por su ID
+            $order = Order::findOrFail($orderId);
 
-        $paymentIntentId = $request->input('stripe_payment_intent_id');
-        $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
-
-        if ($paymentIntent->status === 'succeeded') {
-            $amount = $paymentIntent->amount;
-
-            Payment::create([
-                'order_id' => $order->id,
-                'payment_method_id' => 4, // Stripe payment method id
-                'amount' => $amount / 100, // Convert cents to dollars
-                'payment_date' => now(),
-                'stripe_payment_intent_id' => $paymentIntent->id,
-            ]);
-
-            $order->estado = 'Pagada';
-            $order->save(); // Guardar el estado de la orden como 'Pagada'
-
-            // Verificar si la orden contiene un producto de membresía en su detalle
-            $membershipProduct = $order->orderDetails->first()->product;
-            if ($membershipProduct && $membershipProduct->category_id == 2) {
-                $this->generateMembershipCodes($order);
+            // Verificar si la orden ya está marcada como pagada
+            if ($order->estado === 'Pagada') {
+                return response()->json(['message' => 'La orden ya está pagada'], 400);
             }
 
-            return response()->json(['message' => 'Payment recorded successfully'], 201);
-        } else {
-            return response()->json(['message' => 'Payment failed or not completed', 'status' => $paymentIntent], 400);
+            // Establecer la clave de la API de Stripe
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            // Obtener el ID del Payment Intent desde la solicitud
+            $paymentIntentId = $request->input('stripe_payment_intent_id');
+            
+            // Obtener el Payment Intent desde Stripe
+            $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
+
+            // Verificar si el Payment Intent ha sido exitoso
+            if ($paymentIntent->status === 'succeeded') {
+                // Obtener el monto del Payment Intent (en centavos)
+                $amount = $paymentIntent->amount;
+
+                // Crear un registro de pago en la base de datos
+                Payment::create([
+                    'order_id' => $order->id,
+                    'payment_method_id' => 4, // ID del método de pago de Stripe
+                    'amount' => $amount / 100, // Convertir centavos a dólares
+                    'payment_date' => now(),
+                    'stripe_payment_intent_id' => $paymentIntent->id,
+                ]);
+
+                // Marcar la orden como pagada
+                $order->estado = 'Pagada';
+                $order->save();
+
+                // Verificar si la orden contiene un producto de membresía en su detalle
+                $membershipProduct = $order->orderDetails->first()->product;
+                if ($membershipProduct && $membershipProduct->category_id == 2) {
+                    $this->generateMembershipCodes($order);
+                }
+
+                return response()->json(['message' => 'Payment recorded successfully'], 201);
+            } else {
+                // Si el Payment Intent no ha sido exitoso, devolver un mensaje de error
+                return response()->json(['message' => 'Payment failed or not completed', 'status' => $paymentIntent], 400);
+            }
+        } catch (\Exception $e) {
+            // Capturar cualquier excepción que ocurra durante el proceso
+            return response()->json(['message' => 'Error processing payment', 'error' => $e->getMessage()], 500);
         }
     }
 
