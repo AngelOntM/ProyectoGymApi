@@ -11,8 +11,30 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\MembershipCodeController;
+use App\Http\Controllers\StripeController;
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
 
+// Ruta para simular el pago y redirigir al almacenamiento en la base de datos
+Route::post('/simulate-stripe-payment/{orderId}', function ($orderId) {
+    Stripe::setApiKey(env('STRIPE_SECRET'));
 
+    try {
+        // Crear el PaymentIntent en Stripe (simulado)
+        $amount = 1000 * 100; // Monto de ejemplo en centavos (ej. $10 USD)
+        $currency = 'mxn';
+
+        $paymentIntent = PaymentIntent::create([
+            'amount' => $amount,
+            'currency' => $currency,
+        ]);
+
+        // Redirigir al endpoint para almacenar el pago en la base de datos
+        return redirect()->route('store-stripe-payment', ['orderId' => $orderId, 'paymentIntentId' => $paymentIntent->id]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
 
 //----------------------------------------------------------------Users
 //Usuario autenticado
@@ -72,6 +94,13 @@ Route::prefix('orders')->group(function () {
         // Payment routes
         Route::get('/{orderId}/payments', [PaymentController::class, 'show']);
         Route::post('/{orderId}/payments', [PaymentController::class, 'store']);
+
+        // Stripe payment route - Web / Mobile
+        Route::post('/create-payment-intent', [StripeController::class, 'createPaymentIntent']); // Para crear el pago en stripe
+
+        Route::post('/confirm-stripe-payment', [StripeController::class, 'confirmStripePayment']);
+
+        Route::post('/{orderId}/stripe-payment', [PaymentController::class, 'storeStripePayment']); // Para guardar el pago en la base de datos
     });
 });
 
