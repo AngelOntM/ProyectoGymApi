@@ -15,8 +15,14 @@ class UserController extends Controller
         // Obtener el usuario autenticado
         $user = Auth::user();
 
-        // Retornar la información del usuario
-        return response()->json($user, 200);
+        // Obtener la membresía activa del usuario
+        $activeMembership = $user->userMemberships()->active()->with('membershipDetail')->first();
+
+        // Retornar la información del usuario junto con la membresía activa
+        return response()->json([
+            'user' => $user,
+            'active_membership' => $activeMembership
+        ], 200);
     }
 
     // Retornar la información de los usuarios
