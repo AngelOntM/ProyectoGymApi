@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
 {
@@ -101,7 +102,6 @@ class UserController extends Controller
     }
 
     // Actualizar la información del empleado
-        // Actualizar la información del empleado
     public function updateEmployee(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -167,5 +167,23 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json(['message' => 'User deleted successfully'], 200);
+    }
+
+    // Obtener la imagen del usuario
+    public function getUserImage($userId)
+    {
+        // Obtener la URL de la imagen del microservicio Python
+        $response = Http::get("http://localhost:5001/user/image/{$userId}");
+
+        // Verificar si la solicitud fue exitosa
+        if ($response->successful()) {
+            // Crear una respuesta con la imagen
+            return response()->make($response->body(), 200, [
+                'Content-Type' => $response->header('Content-Type'),
+                'Content-Disposition' => 'inline; filename="' . $userId . '.jpg"',
+            ]);
+        } else {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
     }
 }
