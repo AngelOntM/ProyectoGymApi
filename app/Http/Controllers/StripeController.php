@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use App\Models\Order;
+use Stripe\Stripe;
 
 class StripeController extends Controller
 {
@@ -29,9 +29,61 @@ class StripeController extends Controller
             ]);
         } catch (\Exception $e) {
             // Manejar errores si ocurren al crear el PaymentIntent
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public function createCheckoutSession(Request $request, $orderId)
+    {
+    Stripe::setApiKey(env('STRIPE_SECRET'));
+
+    $order = Order::findOrFail($orderId);
+    $totalAmount = $order->total_amount * 100; // Convertir a centavos
+
+    try {
+        $checkoutSession = \Stripe\Checkout\Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'currency' => 'mxn',
+                        'product_data' => [
+                            'name' => 'Order #' . $orderId, // Puedes ajustar esto
+                        ],
+                        'unit_amount' => $totalAmount,
+                    ],
+                    'quantity' => 1,
+                ],
+            ],
+            'mode' => 'payment',
+            'success_url' => env('APP_URLS') . '/success?order=' . $orderId . '&payment_intent={CHECKOUT_SESSION_ID}', // URL de éxito
+            'cancel_url' => env('APP_URLS') . '/cancel',   // URL de cancelación
+        ]);
+
+        // Obtener el payment_intent_id
+        $paymentIntentId = $checkoutSession->payment_intent;
+
+        // Construir la URL de éxito con el payment_intent_id
+        $successUrl = env('APP_URLS') . '/success?payment_intent=' . $paymentIntentId;
+
+        // Actualizar la sesión de pago con la nueva URL de éxito
+        // $checkoutSession = \Stripe\Checkout\Session::update($checkoutSession->id, [
+        //     'success_url' => $successUrl,
+        // ]);
+
+        return response()->json([
+            'id' => $checkoutSession->id,
+            'payment_intent_id' => $paymentIntentId,
+        ]);
+
+        // return response()->json([
+        //     'id' => $checkoutSession->id,
+        // ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
 
 
     public function confirmStripePayment(Request $request)

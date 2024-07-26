@@ -96,6 +96,8 @@ Route::prefix('orders')->group(function () {
         Route::post('/{orderId}/payments', [PaymentController::class, 'store']);
 
         // Stripe payment route - Web / Mobile
+        Route::post('/{orderId}/create-checkout', [StripeController::class, 'createCheckoutSession']);
+
         Route::post('/{orderId}/create-payment-intent', [StripeController::class, 'createPaymentIntent']); // Para crear el pago en stripe
 
         Route::post('/confirm-stripe-payment', [StripeController::class, 'confirmStripePayment']);
