@@ -82,9 +82,12 @@ class UserController extends Controller
             $imagePath = $image->getPathname();
             $imageName = $image->getClientOriginalName();
 
+            // Obtener la URL del microservicio desde el archivo .env
+            $microserviceUrl = env('MICROSERVICE_URL') . '/upload';
+
             // Enviar la imagen al microservicio de Python
             $response = Http::attach('face_image', file_get_contents($imagePath), $imageName)
-                ->post('http://localhost:5001/upload', [
+                ->post($microserviceUrl, [
                     'user_id' => $user->id
                 ]);
 
@@ -136,9 +139,12 @@ class UserController extends Controller
             $imagePath = $image->getPathname();
             $imageName = $image->getClientOriginalName();
 
+            // Obtener la URL del microservicio desde el archivo .env
+            $microserviceUrl = env('MICROSERVICE_URL') . '/upload';
+
             // Enviar la imagen al microservicio de Python
             $response = Http::attach('face_image', file_get_contents($imagePath), $imageName)
-                ->post('http://localhost:5001/upload', [
+                ->post($microserviceUrl, [
                     'user_id' => $user->id
                 ]);
 
@@ -172,8 +178,11 @@ class UserController extends Controller
     // Obtener la imagen del usuario
     public function getUserImage($userId)
     {
+        // Obtener la URL del microservicio desde el archivo .env
+        $microserviceUrl = env('MICROSERVICE_URL') . "/user/image/{$userId}";
+
         // Obtener la URL de la imagen del microservicio Python
-        $response = Http::get("http://localhost:5001/user/image/{$userId}");
+        $response = Http::get($microserviceUrl);
 
         // Verificar si la solicitud fue exitosa
         if ($response->successful()) {
