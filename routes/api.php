@@ -52,8 +52,8 @@ Route::prefix('productos')->group(function () {
     Route::middleware(['auth:sanctum', 'role.admin'])->group(function () {
         Route::get('/all', [ProductController::class, 'indexAll']);
         Route::post('/', [ProductController::class, 'store']);
-        Route::post('/{id}', [ProductController::class, 'update']); 
-        Route::put('/{id}/toggle-active', [ProductController::class, 'toggleActive']); 
+        Route::post('/{id}', [ProductController::class, 'update']);
+        Route::put('/{id}/toggle-active', [ProductController::class, 'toggleActive']);
         Route::delete('/{id}', [ProductController::class, 'destroy']);
     });
 });
@@ -68,19 +68,30 @@ Route::prefix('orders')->group(function () {
     });
 
     Route::middleware(['auth:sanctum'])->group(function () {
-        Route::post('/memberships', [OrderController::class, 'storeMembershipsOrder']);
+        Route::post('/memberships', [OrderController::class, 'storeMembershipsOrder']); //ESTE EN MOVIL 1RO
         // Payment routes
         Route::get('/{orderId}/payments', [PaymentController::class, 'show']);
         Route::post('/{orderId}/payments', [PaymentController::class, 'store']);
 
         // Stripe payment route - Web / Mobile
-        Route::post('/{orderId}/create-checkout', [StripeController::class, 'createCheckoutSession']);
+        Route::post('/{orderId}/create-checkout', [StripeController::class, 'createCheckoutSession']); // ESTE MOVIL 2DO
 
-        Route::post('/{orderId}/create-payment-intent', [StripeController::class, 'createPaymentIntent']); // Para crear el pago en stripe
+        Route::post('/{orderId}/create-payment-intent', [StripeController::class, 'createPaymentIntent']); // Para crear el pago en stripe - ESTE NO SE USA
 
-        Route::post('/confirm-stripe-payment', [StripeController::class, 'confirmStripePayment']);
+        Route::post('/confirm-stripe-payment', [StripeController::class, 'confirmStripePayment']); //4TO 
 
-        Route::post('/{orderId}/stripe-payment', [PaymentController::class, 'storeStripePayment']); // Para guardar el pago en la base de datos
+        Route::post('/{orderId}/stripe-payment', [PaymentController::class, 'storeStripePayment']); // Para guardar el pago en la base de datos - 3RO
+
+        //region SOLO PARA MOVIL
+
+        Route::post('/{orderId}/create-payment-intent-mobile', [StripeController::class, 'createPaymentIntentMobile']); // Crear el PaymentIntent en Stripe para movil
+
+        Route::post('/cancel-payment-intent-mobile', [StripeController::class, 'cancelPaymentIntentMobile']); // Cancelar el PaymentIntent en Stripe para movil
+
+        Route::post('/confirm-stripe-payment-mobile', [StripeController::class, 'confirmStripePaymentMobile']); // Confirmar el pago en Stripe para movil
+
+        Route::post('/{orderId}/stripe-payment-mobile', [PaymentController::class, 'storeStripePaymentMobile']); // Guardar el pago en la base de datos para movil
+        //endregion
     });
 });
 
