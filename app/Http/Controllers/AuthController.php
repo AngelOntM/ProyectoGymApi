@@ -55,12 +55,15 @@ class AuthController extends Controller
             $imagePath = $request->file('face_image')->store('temp');
 
             try {
+                // Obtener la URL del microservicio desde el archivo .env
+                $microserviceUrl = env('MICROSERVICE_URL') . '/upload';
+
                 // Enviar la imagen al microservicio
                 $response = Http::attach(
                     'face_image',
                     file_get_contents(storage_path('app/' . $imagePath)),
                     'face_image.jpg'
-                )->post('http://localhost:5001/upload', [
+                )->post($microserviceUrl, [
                     'user_id' => $user->id,
                 ]);
 
@@ -127,12 +130,15 @@ class AuthController extends Controller
             $imagePath = $request->file('face_image')->store('temp');
 
             try {
+                // Obtener la URL del microservicio desde el archivo .env
+                $microserviceUrl = env('MICROSERVICE_URL') . '/upload';
+
                 // Enviar la imagen al microservicio
                 $response = Http::attach(
                     'face_image',
                     file_get_contents(storage_path('app/' . $imagePath)),
                     'face_image.jpg'
-                )->post('http://localhost:5001/upload', [
+                )->post($microserviceUrl, [
                     'user_id' => $user->id,
                 ]);
 

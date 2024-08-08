@@ -69,12 +69,15 @@ class VisitController extends Controller
         $imagePath = $request->file('face_image')->store('temp');
 
         try {
+            // Obtener la URL del microservicio desde el archivo .env
+            $microserviceUrl = env('MICROSERVICE_URL') . '/recognize';
+
             // Enviar la imagen al microservicio de reconocimiento facial
             $response = Http::attach(
                 'face_image',
                 file_get_contents(storage_path('app/' . $imagePath)),
                 'face_image.jpg'
-            )->post('http://localhost:5002/recognize');
+            )->post($microserviceUrl);
 
             // Obtener el ID del usuario si es reconocido
             $userId = $response->json('user_id');
