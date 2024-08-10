@@ -42,6 +42,7 @@ return new class extends Migration
         });
 
         DB::statement('ALTER TABLE users AUTO_INCREMENT = 1000;');
+        //DB::statement('ALTER SEQUENCE users_id_seq RESTART WITH 1000;');
     }
 
     /**
