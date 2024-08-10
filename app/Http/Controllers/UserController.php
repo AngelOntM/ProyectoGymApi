@@ -11,19 +11,39 @@ use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
 {
-    // Retornar la información del usuario autenticado
     public function getUser(Request $request)
     {
         // Obtener el usuario autenticado
         $user = Auth::user();
 
-        // Obtener la membresía activa del usuario
-        $activeMembership = $user->userMemberships()->active()->with('membershipDetail')->first();
+        // Obtener la membresía activa del usuario (si la tiene), incluyendo solo el nombre del producto
+        $activeMembership = $user->userMemberships()
+            ->active()
+            ->with('membershipDetail.product')
+            ->first();
 
-        // Retornar la información del usuario junto con la membresía activa
+        // Inicializar los datos de la membresía activa en null
+        $activeMembershipData = null;
+
+        // Verificar si existe una membresía activa
+        if ($activeMembership) {
+            $membershipProductName = $activeMembership->membershipDetail->product->product_name;
+
+            // Crear el array con los datos de la membresía activa
+            $activeMembershipData = [
+                'id' => $activeMembership->id,
+                'user_id' => $activeMembership->user_id,
+                'membership_id' => $activeMembership->membership_id,
+                'start_date' => $activeMembership->start_date,
+                'end_date' => $activeMembership->end_date,
+                'membership_name' => $membershipProductName,
+            ];
+        }
+
+        // Retornar la información del usuario junto con la membresía activa y el nombre del producto (o null si no tiene)
         return response()->json([
             'user' => $user,
-            'active_membership' => $activeMembership
+            'active_membership' => $activeMembershipData,
         ], 200);
     }
 
