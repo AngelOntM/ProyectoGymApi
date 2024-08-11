@@ -36,12 +36,37 @@ class VisitController extends Controller
         return response()->json($visit, 201);
     }
 
-    // Ver todas las visitas
-    public function index()
+    // Ver todas las visitas dentro de un rango de fechas
+    public function index(Request $request)
     {
-        $visits = Visit::with('user')->get();
+        // Validar los parámetros de fecha
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
+        // Obtener las fechas de inicio y fin del request, si están presentes
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Consultar las visitas
+        $query = Visit::query();
+
+        // Filtrar por fecha si se proporcionan
+        if ($startDate) {
+            $query->where('visit_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('visit_date', '<=', $endDate);
+        }
+
+        // Obtener las visitas con el usuario relacionado
+        $visits = $query->with('user')->get();
+
+        // Retornar las visitas en formato JSON
         return response()->json($visits, 200);
     }
+
 
     // Ver visitas de un usuario específico
     public function showUserVisits($userId)
@@ -109,5 +134,29 @@ class VisitController extends Controller
             // Eliminar la imagen temporal
             unlink(storage_path('app/' . $imagePath));
         }
+    }
+    
+    // Ver las visitas del usuario autenticado
+    public function getAuthenticatedUserVisits()
+    {
+        // Obtener el usuario autenticado
+        $user = Auth::user();
+
+        // Obtener las visitas del usuario autenticado
+        $visits = Visit::where('user_id', $user->id)
+            ->with('user') // Solo carga el usuario relacionado
+            ->get()
+            ->map(function ($visit) {
+                return [
+                    'id' => $visit->id,
+                    'user_id' => $visit->user_id,
+                    'visit_date' => $visit->visit_date,
+                    'check_in_time' => $visit->check_in_time,
+                    'name' => $visit->user->name,
+                ];
+            });
+
+        // Retornar las visitas en formato JSON
+        return response()->json($visits, 200);
     }
 }

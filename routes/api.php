@@ -109,6 +109,8 @@ Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function ()
     Route::post('/visits/process-image', [VisitController::class, 'processImage']); // Registrar una visita con imagen
 });
 
+Route::get('/user/visits', [VisitController::class, 'getAuthenticatedUserVisits'])->middleware('auth:sanctum');
+
 //----------------------------------------------------------------Membership Codes
 Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function () {
     // Canjear código de membresía para un usuario específico - Escritorio
