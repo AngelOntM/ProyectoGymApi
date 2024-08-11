@@ -16,10 +16,33 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     // GET - /orders
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $orders = Order::with('orderDetails')->get();
+            // Validar parámetros de fecha
+            $request->validate([
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+            ]);
+
+            // Obtener parámetros de fecha
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            // Construir la consulta
+            $query = Order::with('orderDetails');
+
+            // Aplicar filtros de fecha si están presentes
+            if ($startDate) {
+                $query->whereDate('order_date', '>=', $startDate);
+            }
+            if ($endDate) {
+                $query->whereDate('order_date', '<=', $endDate);
+            }
+
+            // Obtener las órdenes
+            $orders = $query->get();
+
             return response()->json($orders);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al obtener las órdenes'], 500);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UserMembership;
 use App\Models\Visit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -108,7 +109,19 @@ class VisitController extends Controller
             $userId = $response->json('user_id');
 
             if (!$userId) {
-                return response()->json(['message' => 'Usuario no reconocido por el microservicio'], 404);
+                return response()->json(['message' => 'Usuario no reconocido'], 404);
+            }
+            
+            $user = User::find($userId);
+
+            if ($user->rol_id == 1 || $user->rol_id == 2) {
+                $visit = Visit::create([
+                    'user_id' => $user->id,
+                    'visit_date' => now()->toDateString(),
+                    'check_in_time' => now()->toTimeString(),
+                ]);
+
+                return response()->json($visit, 201);
             }
 
             // Verificar si el usuario tiene una membresía activa
