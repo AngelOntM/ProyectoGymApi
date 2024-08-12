@@ -23,8 +23,12 @@ class VisitController extends Controller
             ->where('end_date', '>', now())
             ->exists();
 
+        // Si el usuario no tiene una membresía activa, retornar un error. pero los administradores pueden ingresar
         if (!$hasActiveMembership) {
-            return response()->json(['message' => 'El usuario no tiene una membresía activa'], 400);
+            $user = User::find($request->user_id);
+            if ($user->rol_id != 1 && $user->rol_id != 2) {
+                return response()->json(['message' => 'El usuario no tiene una membresía activa'], 400);
+            }
         }
 
         // Registrar la visita
@@ -73,18 +77,23 @@ class VisitController extends Controller
     public function showUserVisits($userId)
     {
         $visits = Visit::where('user_id', $userId)
-            ->with(['user', 'user.userMemberships' => function ($query) {
-                $query->active()
-                    ->with(['membershipDetail' => function ($query) {
-                        $query->with('product:id,product_name'); // Cargar el producto y seleccionar solo el nombre
-                    }]);
-            }])
+            ->with([
+                'user',
+                'user.userMemberships' => function ($query) {
+                    $query->active()
+                        ->with([
+                            'membershipDetail' => function ($query) {
+                                $query->with('product:id,product_name'); // Cargar el producto y seleccionar solo el nombre
+                            }
+                        ]);
+                }
+            ])
             ->get();
 
         return response()->json($visits, 200);
     }
 
-        // Procesar imagen recibida y verificar membresía
+    // Procesar imagen recibida y verificar membresía
     public function processImage(Request $request)
     {
         $request->validate([
@@ -111,7 +120,7 @@ class VisitController extends Controller
             if (!$userId) {
                 return response()->json(['message' => 'Usuario no reconocido'], 404);
             }
-            
+
             $user = User::find($userId);
 
             if ($user->rol_id == 1 || $user->rol_id == 2) {
@@ -148,7 +157,7 @@ class VisitController extends Controller
             unlink(storage_path('app/' . $imagePath));
         }
     }
-    
+
     // Ver las visitas del usuario autenticado
     public function getAuthenticatedUserVisits()
     {
