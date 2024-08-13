@@ -53,7 +53,7 @@ class MembershipController extends Controller
                 'price' => 'required|numeric',
                 'discount' => 'nullable|numeric|max:100',
                 'active' => 'required|boolean',
-                'product_image_path' => 'nullable|file|image|max:2048',
+                'product_image_path' => 'nullable|file|image|max:8192',
                 'duration_days' => 'required|integer',
                 'size' => 'required|integer',
             ]);
@@ -99,7 +99,7 @@ class MembershipController extends Controller
                 'price' => 'required|numeric',
                 'discount' => 'nullable|numeric|max:100',
                 'active' => 'required|boolean',
-                'product_image_path' => 'nullable|file|image|max:2048',
+                'product_image_path' => 'nullable|file|image|max:8192',
                 'duration_days' => 'required|integer',
                 'size' => 'required|integer',
             ]);
