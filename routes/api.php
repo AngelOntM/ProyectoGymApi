@@ -62,12 +62,13 @@ Route::prefix('productos')->group(function () {
 Route::prefix('orders')->group(function () {
     Route::middleware(['auth:sanctum', 'role.employee_or_admin'])->group(function () {
         Route::get('', [OrderController::class, 'index']);
-        Route::get('/{id}', [OrderController::class, 'show']);
+
         Route::post('/products', [OrderController::class, 'storeProductsOrder']);
         Route::delete('/{id}', [OrderController::class, 'destroy']);
     });
 
     Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('/{id}', [OrderController::class, 'show']);
         Route::post('/memberships', [OrderController::class, 'storeMembershipsOrder']); //ESTE EN MOVIL 1RO
         // Payment routes
         Route::get('/{orderId}/payments', [PaymentController::class, 'show']);
