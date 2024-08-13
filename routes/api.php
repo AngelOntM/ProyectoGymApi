@@ -84,6 +84,8 @@ Route::prefix('orders')->group(function () {
 
         //region SOLO PARA MOVIL
 
+
+        Route::get('/order/user', [OrderController::class, 'showUserOrders']); // Ver todas las ordenes de un usuario
         Route::post('/{orderId}/create-payment-intent-mobile', [StripeController::class, 'createPaymentIntentMobile']); // Crear el PaymentIntent en Stripe para movil
 
         Route::post('/cancel-payment-intent-mobile', [StripeController::class, 'cancelPaymentIntentMobile']); // Cancelar el PaymentIntent en Stripe para movil

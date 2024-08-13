@@ -60,6 +60,30 @@ class OrderController extends Controller
         }
     }
 
+    // GET - /order/user
+    public function showUserOrders()
+    {
+        try {
+            // Obtener el ID del usuario autenticado
+            $userId = Auth::id();
+
+            // Validar que el usuario esté autenticado
+            if (!$userId) {
+                return response()->json(['message' => 'Usuario no autenticado'], 401);
+            }
+
+            // Obtener las órdenes del usuario
+            $orders = Order::where('user_id', $userId)->with('orderDetails')->get();
+
+            // Retornar las órdenes en formato JSON
+            return response()->json($orders);
+        } catch (\Exception $e) {
+            // Devolver detalles del error para depuración
+            return response()->json(['message' => 'Error al obtener las órdenes del usuario', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
     // POST - /orders/products
     public function storeProductsOrder(Request $request)
     {
