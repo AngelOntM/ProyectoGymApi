@@ -10,7 +10,7 @@ class MembershipDetailsTableSeeder extends Seeder
 {
     public function run()
     {
-        $products = Product::whereIn('product_name', ['Individual', 'Familiar', 'Estudiante'])->get();
+        $products = Product::whereIn('product_name', ['Individual', 'Parejas', 'Familiar'])->get();
 
         foreach ($products as $product) {
             if ($product->product_name == 'Individual') {
