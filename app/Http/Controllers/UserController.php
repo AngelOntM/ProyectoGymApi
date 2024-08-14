@@ -61,12 +61,28 @@ class UserController extends Controller
     // Retornar la información de los empleados
     public function getEmpleados()
     {
-        // Asumiendo que el rol de Empleado tiene el rol_id = 2
+        // Obtener los empleados y cargar la relación 'rol' para incluir el nombre del rol
         $empleados = User::whereHas('rol', function($query) {
             $query->whereIn('rol_name', ['Empleado', 'Admin']);
-        })->get();
+        })->with('rol')->get();
 
-        return response()->json(['empleados' => $empleados], 200);
+        // Preparar la respuesta incluyendo los nombres de los roles
+        $empleadosConRol = $empleados->map(function ($empleado) {
+            return [
+                'id' => $empleado->id,
+                'name' => $empleado->name,
+                'email' => $empleado->email,
+                'phone_number' => $empleado->phone_number,
+                'address' => $empleado->address,
+                'date_of_birth' => $empleado->date_of_birth,
+                'rol_id' => $empleado->rol_id,
+                'rol_name' => $empleado->rol->rol_name, // Incluye el nombre del rol
+                'created_at' => $empleado->created_at,
+                'updated_at' => $empleado->updated_at,
+            ];
+        });
+
+        return response()->json(['empleados' => $empleadosConRol], 200);
     }
 
     // Actualizar la información del usuario
