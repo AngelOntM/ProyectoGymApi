@@ -173,6 +173,9 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
+        // Guardar el rol anterior para comparar después
+        $previousRoleId = $user->rol_id;
+
         // Actualizar los campos del usuario
         $user->update($request->only([
             'name',
@@ -182,6 +185,11 @@ class UserController extends Controller
             'date_of_birth',
             'rol_id',
         ]));
+
+        // Si el rol ha cambiado, revocar los tokens del usuario
+        if ($previousRoleId != $user->rol_id) {
+            $user->tokens()->delete();
+        }
 
         // Si se envió una imagen, procesarla y enviarla al microservicio de Python
         if ($request->hasFile('face_image')) {
@@ -210,6 +218,7 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Employee updated successfully', 'user' => $user], 200);
     }
+
 
     // Eliminar un usuario
     public function deleteUser($id)
