@@ -19,17 +19,17 @@ class MembershipDetailsTableSeeder extends Seeder
                     'duration_days' => 30,
                     'size' => 1,
                 ]);
+            } elseif ($product->product_name == 'Parejas') {
+                MembershipDetail::create([
+                    'product_id' => $product->id,
+                    'duration_days' => 30,
+                    'size' => 2,
+                ]);
             } elseif ($product->product_name == 'Familiar') {
                 MembershipDetail::create([
                     'product_id' => $product->id,
                     'duration_days' => 30,
                     'size' => 4,
-                ]);
-            } elseif ($product->product_name == 'Estudiante') {
-                MembershipDetail::create([
-                    'product_id' => $product->id,
-                    'duration_days' => 30,
-                    'size' => 1,
                 ]);
             }
         }
