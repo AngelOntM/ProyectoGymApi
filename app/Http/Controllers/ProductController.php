@@ -101,6 +101,7 @@ class ProductController extends Controller
                     Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
                 }
                 $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
+                dd($path);
                 $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
             } else {
                 $path = $product->product_image_path;
