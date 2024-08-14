@@ -67,10 +67,15 @@ class ProductController extends Controller
                 'product_image_path' => null,
             ]);
 
-            if ($request->file('product_image_path')) {
-                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
-                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
-                $product->update(['product_image_path' => $path]);
+            if ($request->hasFile('product_image_path')) {
+                $file = $request->file('product_image_path');
+                $fileName = $product->id . '.' . $file->getClientOriginalExtension();
+                $destinationPath = storage_path('app/public/products');
+
+                // Mover el archivo manualmente
+                $file->move($destinationPath, $fileName);
+
+                $product->update(['product_image_path' => 'products/' . $fileName]);
             }
 
             return response()->json($product, 201);
@@ -78,6 +83,7 @@ class ProductController extends Controller
             return response()->json(['message' => 'Error al crear el producto'], 500);
         }
     }
+
 
     // PUT - /productos/{id}
     public function update(Request $request, $id)
@@ -95,33 +101,33 @@ class ProductController extends Controller
                 'product_image_path' => 'nullable|file|image|max:8192',
             ]);
 
-            // Si se sube una nueva imagen, borrar la anterior
-            if ($request->file('product_image_path')) {
+            if ($request->hasFile('product_image_path')) {
+                // Eliminar la imagen anterior si existe
                 if ($product->product_image_path) {
-                    Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
+                    $oldImagePath = storage_path('app/public/' . $product->product_image_path);
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
-                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
-                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
-            } else {
-                $path = $product->product_image_path;
-            }
 
-            $product->update([
-                'product_name' => $request->product_name,
-                'description' => $request->description,
-                'price' => $request->price,
-                'stock' => $request->stock,
-                'discount' => $request->discount,
-                'active' => $request->active,
-                'category_id' => 1,
-                'product_image_path' => $path,
-            ]);
+                $file = $request->file('product_image_path');
+                $fileName = $product->id . '.' . $file->getClientOriginalExtension();
+                $destinationPath = storage_path('app/public/products');
+
+                // Mover el archivo manualmente
+                $file->move($destinationPath, $fileName);
+
+                $product->update(['product_image_path' => 'products/' . $fileName]);
+            } else {
+                $product->update($request->only(['product_name', 'description', 'price', 'stock', 'discount', 'active']));
+            }
 
             return response()->json($product);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al actualizar el producto'], 500);
         }
     }
+
     
     // DELETE - /productos/{id}
     public function destroy($id)
