@@ -174,7 +174,7 @@ class VisitController extends Controller
                     'user_id' => $visit->user_id,
                     'visit_date' => $visit->visit_date,
                     'check_in_time' => $visit->check_in_time,
-                    'name' => $visit->user->name,
+                    'user' => $visit->user->name,
                 ];
             });
 
