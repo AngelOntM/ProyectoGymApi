@@ -68,8 +68,14 @@ class ProductController extends Controller
             ]);
 
             if ($request->file('product_image_path')) {
+                $destinationPath = '/home/rocky/ProyectoGymApi/public/storage/products';
+                
+                // Intentar crear el directorio si no existe
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0775, true);
+                }
+
                 $filename = $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension();
-                $destinationPath = 'public/storage/products';
                 $request->file('product_image_path')->move($destinationPath, $filename);
 
                 // Guardar la ruta relativa en la base de datos
@@ -100,22 +106,30 @@ class ProductController extends Controller
                 'product_image_path' => 'nullable|file|image|max:8192',
             ]);
 
+            // Si se sube una nueva imagen, borrar la anterior
             if ($request->file('product_image_path')) {
-                // Eliminar la imagen anterior si existe
                 if ($product->product_image_path) {
-                    $oldImagePath = 'public/storage/' . $product->product_image_path;
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
+                    // Eliminar la imagen anterior si existe
+                    $oldPath = storage_path('app/public/' . $product->product_image_path);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
                     }
                 }
 
-                // Guardar la nueva imagen
+                $destinationPath = '/home/rocky/ProyectoGymApi/public/storage/products';
+                
+                // Intentar crear el directorio si no existe
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0775, true);
+                }
+
                 $filename = $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension();
-                $destinationPath = '/storage/products';
                 $request->file('product_image_path')->move($destinationPath, $filename);
 
-                // Actualizar la ruta de la imagen en la base de datos
-                $product->update(['product_image_path' => 'products/' . $filename]);
+                // Guardar la ruta relativa en la base de datos
+                $path = 'products/' . $filename;
+            } else {
+                $path = $product->product_image_path;
             }
 
             $product->update([
@@ -126,13 +140,15 @@ class ProductController extends Controller
                 'discount' => $request->discount,
                 'active' => $request->active,
                 'category_id' => 1,
+                'product_image_path' => $path,
             ]);
 
             return response()->json($product);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al crear el producto', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Error al actualizar el producto', 'error' => $e->getMessage()], 500);
         }
     }
+
 
 
     
