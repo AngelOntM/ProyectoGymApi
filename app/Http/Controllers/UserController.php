@@ -82,6 +82,7 @@ class UserController extends Controller
                 'date_of_birth' => $empleado->date_of_birth,
                 'rol_id' => $empleado->rol_id,
                 'rol_name' => $empleado->rol->rol_name, // Incluye el nombre del rol
+                'face_image_path' => $empleado->face_image_path,
                 'created_at' => $empleado->created_at,
                 'updated_at' => $empleado->updated_at,
             ];
