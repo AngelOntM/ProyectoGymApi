@@ -97,7 +97,6 @@ class ProductController extends Controller
 
             // Si se sube una nueva imagen, borrar la anterior
             if ($request->file('product_image_path')) {
-                dd($request->file('product_image_path'));
                 if ($product->product_image_path) {
                     Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
                 }
