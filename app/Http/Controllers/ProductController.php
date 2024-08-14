@@ -102,7 +102,6 @@ class ProductController extends Controller
                 }
                 $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
                 $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
-                dd($path);  // Agrega esto para verificar la ruta
             } else {
                 $path = $product->product_image_path;
             }
