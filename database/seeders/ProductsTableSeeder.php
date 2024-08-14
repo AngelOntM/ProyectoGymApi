@@ -18,7 +18,7 @@ class ProductsTableSeeder extends Seeder
                 'discount' => 0,
                 'active' => 1,
                 'category_id' => 2, // Assuming 'Membresia' has ID 2
-                'product_image_path' => null,
+                'product_image_path' => 'products\/1.jpg',
             ],
             [
                 'product_name' => 'Familiar',
@@ -28,7 +28,7 @@ class ProductsTableSeeder extends Seeder
                 'discount' => 0,
                 'active' => 1,
                 'category_id' => 2, // Assuming 'Membresia' has ID 2
-                'product_image_path' => null,
+                'product_image_path' => 'products\/2.jpg',
             ],
             [
                 'product_name' => 'Estudiante',
@@ -38,7 +38,7 @@ class ProductsTableSeeder extends Seeder
                 'discount' => 0,
                 'active' => 1,
                 'category_id' => 2, // Assuming 'Membresia' has ID 2
-                'product_image_path' => null,
+                'product_image_path' => 'products\/3.jpg',
             ],
         ]);
     }

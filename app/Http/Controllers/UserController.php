@@ -63,7 +63,7 @@ class UserController extends Controller
     {
         // Asumiendo que el rol de Empleado tiene el rol_id = 2
         $empleados = User::whereHas('rol', function($query) {
-            $query->where('rol_name', 'Empleado');
+            $query->whereIn('rol_name', ['Empleado', 'Admin']);
         })->get();
 
         return response()->json(['empleados' => $empleados], 200);
@@ -190,9 +190,20 @@ class UserController extends Controller
             return response()->json(['message' => 'You cannot delete yourself.'], 403);
         }
 
+        // Get the URL of the Flask microservice from the .env file
+        $microserviceUrl = env('MICROSERVICE_URL') . "/user/image/{$user->id}";
+
+        // Send a DELETE request to the Flask microservice to remove the user's image
+        $response = Http::delete($microserviceUrl);
+
+        if (!$response->successful()) {
+            return response()->json(['error' => 'Failed to delete user image from the microservice'], 500);
+        }
+
+        // Delete the user from the database
         $user->delete();
 
-        return response()->json(['message' => 'User deleted successfully'], 200);
+        return response()->json(['message' => 'User and associated image deleted successfully'], 200);
     }
 
     // Obtener la imagen del usuario

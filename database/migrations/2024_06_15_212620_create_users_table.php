@@ -41,8 +41,8 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
 
-        DB::statement('ALTER TABLE users AUTO_INCREMENT = 1000;');
-        //DB::statement('ALTER SEQUENCE users_id_seq RESTART WITH 1000;');
+        //DB::statement('ALTER TABLE users AUTO_INCREMENT = 1000;');
+        DB::statement('ALTER SEQUENCE users_id_seq RESTART WITH 1000;');
     }
 
     /**
