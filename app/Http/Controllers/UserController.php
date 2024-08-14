@@ -235,10 +235,6 @@ class UserController extends Controller
         // Send a DELETE request to the Flask microservice to remove the user's image
         $response = Http::delete($microserviceUrl);
 
-        if (!$response->successful()) {
-            return response()->json(['error' => 'Failed to delete user image from the microservice'], 500);
-        }
-
         // Delete the user from the database
         $user->delete();
 
