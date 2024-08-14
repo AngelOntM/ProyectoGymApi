@@ -19,6 +19,7 @@ class MembershipController extends Controller
                 ->join('membership_details', 'products.id', '=', 'membership_details.product_id')
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'membership_details.duration_days', 'membership_details.size', 'products.created_at', 'products.updated_at')
+                ->orderBy('products.id', 'asc')
                 ->get();
 
             return response()->json($memberships);
@@ -35,6 +36,7 @@ class MembershipController extends Controller
                 ->join('membership_details', 'products.id', '=', 'membership_details.product_id')
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'membership_details.duration_days', 'membership_details.size', 'products.created_at', 'products.updated_at')
+                ->orderBy('products.id', 'asc')
                 ->get();
 
             return response()->json($memberships);

@@ -17,6 +17,7 @@ class ProductController extends Controller
                 ->where('products.category_id', 1)
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.stock', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'products.created_at', 'products.updated_at')
+                ->orderBy('products.id', 'asc')
                 ->get();
 
             return response()->json($products);
@@ -32,6 +33,7 @@ class ProductController extends Controller
             $products = Product::where('products.category_id', 1)
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->select('products.id', 'products.product_name', 'products.description', 'products.price', 'products.stock', 'products.discount', 'products.active', 'products.category_id', 'categories.category_name', 'products.product_image_path', 'products.created_at', 'products.updated_at')
+                ->orderBy('products.id', 'asc')
                 ->get();
 
             return response()->json($products);

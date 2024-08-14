@@ -53,7 +53,9 @@ class UserController extends Controller
         // Asumiendo que el rol de Cliente tiene el rol_id = 3
         $clientes = User::whereHas('rol', function($query) {
             $query->where('rol_name', 'Cliente');
-        })->get();
+        })
+        ->orderBy('id', 'asc') 
+        ->get();
 
         return response()->json(['clientes' => $clientes], 200);
     }
@@ -64,7 +66,10 @@ class UserController extends Controller
         // Obtener los empleados y cargar la relación 'rol' para incluir el nombre del rol
         $empleados = User::whereHas('rol', function($query) {
             $query->whereIn('rol_name', ['Empleado', 'Admin']);
-        })->with('rol')->get();
+        })
+        ->with('rol')
+        ->orderBy('id', 'asc') 
+        ->get();
 
         // Preparar la respuesta incluyendo los nombres de los roles
         $empleadosConRol = $empleados->map(function ($empleado) {
