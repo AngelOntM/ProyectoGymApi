@@ -78,7 +78,7 @@ class ProductController extends Controller
 
             return response()->json($product, 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al crear el producto'], 500);
+            return response()->json(['message' => 'Error al crear el producto', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -130,7 +130,7 @@ class ProductController extends Controller
 
             return response()->json($product);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al actualizar el producto'], 500);
+            return response()->json(['message' => 'Error al crear el producto', 'error' => $e->getMessage()], 500);
         }
     }
 
