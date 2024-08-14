@@ -163,6 +163,14 @@ class UserController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
+        // Obtener el usuario que está realizando la solicitud
+        $authenticatedUserId = Auth::id();
+
+        // Verificar si el usuario está intentando actualizar su propio rol
+        if ($authenticatedUserId == $id && $request->has('rol_id')) {
+            return response()->json(['error' => 'You cannot update your own role.'], 403);
+        }
+
         $user = User::findOrFail($id);
 
         // Actualizar los campos del usuario
