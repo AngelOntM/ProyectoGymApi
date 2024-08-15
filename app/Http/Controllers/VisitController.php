@@ -102,7 +102,6 @@ class VisitController extends Controller
 
         // Guardar la imagen en el servidor
         $imagePath = $request->file('face_image')->store('temp');
-        dd(storage_path('app/' . $imagePath));
 
         // Verificar si el archivo existe
         if (!file_exists(storage_path('app/' . $imagePath))) {
