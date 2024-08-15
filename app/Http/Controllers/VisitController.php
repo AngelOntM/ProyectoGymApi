@@ -102,10 +102,9 @@ class VisitController extends Controller
 
         // Guardar la imagen en el servidor
         $imagePath = $request->file('face_image')->store('temp');
-        dd(storage_path('/home/rocky/ProyectoGymApi/storage/app/' . $imagePath));
 
         // Verificar si el archivo existe
-        if (!file_exists(storage_path('/home/rocky/ProyectoGymApi/storage/app/' . $imagePath))) {
+        if (!file_exists(storage_path('app/' . $imagePath))) {
             return response()->json(['message' => 'El archivo no se guardó correctamente'], 500);
         }
 
