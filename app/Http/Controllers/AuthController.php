@@ -20,79 +20,98 @@ class AuthController extends Controller
 {
     // Método para registrar un cliente
     public function registerUser(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:50',
-            'email' => 'required|string|email|max:50|unique:users',
-            'phone_number' => 'required|string|max:10',
-            'address' => 'required|string|max:60',
-            'date_of_birth' => 'date',
-            'face_image' => 'nullable|image|max:2048', // La imagen es opcional
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:50',
+        'email' => 'required|string|email|max:50|unique:users',
+        'phone_number' => 'required|string|max:10',
+        'address' => 'required|string|max:60',
+        'date_of_birth' => 'date',
+        'face_image' => 'nullable|image|max:2048', // La imagen es opcional
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-        // Generar contraseña aleatoria de longitud 10
-        $randomPassword = Str::random(10);
-        $hashedPassword = Hash::make($randomPassword);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $hashedPassword,
-            'phone_number' => $request->phone_number,
-            'address' => $request->address,
-            'date_of_birth' => $request->date_of_birth,
-            'rol_id' => 3,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        if ($request->hasFile('face_image')) {
-            // Guardar la imagen temporalmente
-            $imagePath = $request->file('face_image')->store('temp');
-
-            try {
-                // Obtener la URL del microservicio desde el archivo .env
-                $microserviceUrl = env('MICROSERVICE_URL') . '/upload';
-
-                // Enviar la imagen al microservicio
-                $response = Http::attach(
-                    'face_image',
-                    file_get_contents(storage_path('app/' . $imagePath)),
-                    'face_image.jpg'
-                )->post($microserviceUrl, [
-                    'user_id' => $user->id,
-                ]);
-
-                if ($response->failed()) {
-                    // Si falla la subida de la imagen, borra el usuario creado
-                    $user->delete();
-                    return response()->json(['message' => 'Error al subir la imagen'], 500);
-                }
-
-                // Obtener la URL de la imagen
-                $image_url = $response->json('file_name');
-
-                // Almacenar la URL de la imagen en la base de datos
-                $user->update(['face_image_path' => $image_url]);
-
-            } catch (\Exception $e) {
-                // Borrar el usuario si ocurre algún error
-                $user->delete();
-                return response()->json(['message' => 'Error al registrar el usuario'], 500);
-            } finally {
-                // Eliminar la imagen temporal
-                Storage::delete($imagePath);
-            }
-        }
-
-        $user->notify(new UserRegistered($randomPassword));
-
-        return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), 400);
     }
+
+    // Generar contraseña aleatoria de longitud 10
+    $randomPassword = Str::random(10);
+    $hashedPassword = Hash::make($randomPassword);
+
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => $hashedPassword,
+        'phone_number' => $request->phone_number,
+        'address' => $request->address,
+        'date_of_birth' => $request->date_of_birth,
+        'rol_id' => 3,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    if ($request->hasFile('face_image')) {
+        // Carpeta temporal alternativa
+        $tempDir = storage_path('app/temp_alt');
+        
+        // Crear la carpeta si no existe
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $file = $request->file('face_image');
+        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+        $filePath = $tempDir . '/' . $filename;
+
+        // Mover el archivo a la carpeta temporal alternativa
+        $file->move($tempDir, $filename);
+
+        if (!file_exists($filePath)) {
+            // Eliminar el usuario si el archivo no se guardó correctamente
+            $user->delete();
+            return response()->json(['message' => 'El archivo no se guardó correctamente'], 500);
+        }
+
+        try {
+            // Obtener la URL del microservicio desde el archivo .env
+            $microserviceUrl = env('MICROSERVICE_URL') . '/upload';
+
+            // Enviar la imagen al microservicio
+            $response = Http::attach(
+                'face_image',
+                file_get_contents($filePath),
+                'face_image.jpg'
+            )->post($microserviceUrl, [
+                'user_id' => $user->id,
+            ]);
+
+            if ($response->failed()) {
+                // Si falla la subida de la imagen, borra el usuario creado
+                $user->delete();
+                return response()->json(['message' => 'Error al subir la imagen'], 500);
+            }
+
+            // Obtener la URL de la imagen
+            $image_url = $response->json('file_name');
+
+            // Almacenar la URL de la imagen en la base de datos
+            $user->update(['face_image_path' => $image_url]);
+
+        } catch (\Exception $e) {
+            // Borrar el usuario si ocurre algún error
+            $user->delete();
+            return response()->json(['message' => 'Error al registrar el usuario', 'error' => $e->getMessage()], 500);
+        } finally {
+            // Eliminar la imagen temporal
+            unlink($filePath);
+        }
+    }
+
+    $user->notify(new UserRegistered($randomPassword));
+
+    return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
+}
+
 
 // Método para registrar un empleado
     public function registerEmployee(Request $request)
