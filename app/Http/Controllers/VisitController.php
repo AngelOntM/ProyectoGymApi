@@ -103,14 +103,19 @@ class VisitController extends Controller
         // Guardar la imagen en el servidor
         $imagePath = $request->file('face_image')->store('temp');
 
+        // Verificar si el archivo existe
+        if (!file_exists(storage_path('app/' . $imagePath))) {
+            return response()->json(['message' => 'El archivo no se guardó correctamente'], 500);
+        }
+
         try {
             // Obtener la URL del microservicio desde el archivo .env
             $microserviceUrl = env('MICROSERVICE_URL') . '/recognize';
 
-            // Enviar la imagen al microservicio de reconocimiento facial
+            // Enviar la imagen al microservicio de reconocimiento facial usando Storage
             $response = Http::attach(
                 'face_image',
-                file_get_contents(storage_path('app/' . $imagePath)),
+                Storage::get($imagePath),  // Usar Storage para leer el archivo
                 'face_image.jpg'
             )->post($microserviceUrl);
 
@@ -152,16 +157,16 @@ class VisitController extends Controller
             return response()->json($visit, 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al procesar la imagen y verificar la membresía', 'error' => $e->getMessage()], 500);
+        } finally {
+            // Eliminar la imagen temporal si existe
+            if (file_exists(storage_path('app/' . $imagePath))) {
+                unlink(storage_path('app/' . $imagePath));
+            } else {
+                Log::warning('El archivo temporal no existe: ' . storage_path('app/' . $imagePath));
+            }
         }
-        // } finally {
-        //     // Verificar que el archivo existe antes de intentar eliminarlo
-        //     if (file_exists(storage_path('app/' . $imagePath))) {
-        //         unlink(storage_path('app/' . $imagePath));
-        //     } else {
-        //         Log::warning('El archivo temporal no existe: ' . storage_path('app/' . $imagePath));
-        //     }
-        // }
     }
+
 
     // Ver las visitas del usuario autenticado
     public function getAuthenticatedUserVisits()
