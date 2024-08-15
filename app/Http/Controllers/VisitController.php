@@ -151,10 +151,14 @@ class VisitController extends Controller
 
             return response()->json($visit, 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la imagen y verificar la membresía'], 500);
+            return response()->json(['message' => 'Error al procesar la imagen y verificar la membresía', 'error' => $e->getMessage()], 500);
         } finally {
-            // Eliminar la imagen temporal
-            unlink(storage_path('app/' . $imagePath));
+            // Verificar que el archivo existe antes de intentar eliminarlo
+            if (file_exists(storage_path('app/' . $imagePath))) {
+                unlink(storage_path('app/' . $imagePath));
+            } else {
+                Log::warning('El archivo temporal no existe: ' . storage_path('app/' . $imagePath));
+            }
         }
     }
 

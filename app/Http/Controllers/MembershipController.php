@@ -71,9 +71,10 @@ class MembershipController extends Controller
             ]);
 
             if ($request->file('product_image_path')) {
-                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
-                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
-                $product->update(['product_image_path' => $path]);
+                // Guardar la imagen en la carpeta especificada
+                $imageName = $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension();
+                $request->file('product_image_path')->move('/home/rocky/ProyectoGymApi/public/storage/products', $imageName);
+                $product->update(['product_image_path' => 'products/' . $imageName]);
             }
 
             MembershipDetail::create([
@@ -84,11 +85,11 @@ class MembershipController extends Controller
 
             return response()->json($product, 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al crear la membresía'], 500);
+            return response()->json(['message' => 'Error al crear la membresía', 'error' => $e->getMessage()], 500);
         }
     }
 
-    // POST   - /membresias/{id}
+    // POST - /membresias/{id}
     public function update(Request $request, $id)
     {
         try {
@@ -106,15 +107,20 @@ class MembershipController extends Controller
                 'size' => 'required|integer',
             ]);
 
-            // Si se sube una nueva imagen, borrar la anterior
+            // Si se sube una nueva imagen, borrar la anterior y guardar la nueva
             if ($request->file('product_image_path')) {
                 if ($product->product_image_path) {
-                    Storage::delete('public/' . $product->product_image_path);  // Agregar 'public/' antes de borrar
+                    // Borrar la imagen anterior
+                    $oldImagePath = '/home/rocky/ProyectoGymApi/public/storage/' . $product->product_image_path;
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
-                $path = $request->file('product_image_path')->storeAs('public/products', $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension());
-                $path = str_replace('public/', '', $path);  // Eliminar 'public/' de la ruta
-            } else {
-                $path = $product->product_image_path;
+
+                // Guardar la nueva imagen
+                $imageName = $product->id . '.' . $request->file('product_image_path')->getClientOriginalExtension();
+                $request->file('product_image_path')->move('/home/rocky/ProyectoGymApi/public/storage/products', $imageName);
+                $product->update(['product_image_path' => 'products/' . $imageName]);
             }
 
             $product->update([
@@ -123,7 +129,6 @@ class MembershipController extends Controller
                 'price' => $request->price,
                 'discount' => $request->discount,
                 'active' => $request->active,
-                'product_image_path' => $path,
             ]);
 
             $membershipDetail->update([
@@ -133,7 +138,7 @@ class MembershipController extends Controller
 
             return response()->json($product);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al actualizar la membresía'], 500);
+            return response()->json(['message' => 'Error al actualizar la membresía', 'error' => $e->getMessage()], 500);
         }
     }
 
